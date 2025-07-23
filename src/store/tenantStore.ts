@@ -1,25 +1,45 @@
 import { create } from "zustand";
 import apiClient from "@/services/api";
-import { Tenant } from "@/types";
+import { Tenant, PaginatedResponse } from "@/types";
 
 interface TenantState {
     tenants: Tenant[];
     loading: boolean;
-    fetchTenants: () => Promise<void>;
+    total: number;
+    page: number;
+    pageSize: number;
+    fetchTenants: (params: { page: number; pageSize: number; search?: string; sortBy?: string }) => Promise<void>;
     createTenant: (name: string) => Promise<void>;
     updateTenant: (id: string, data: { name?: string; status?: "ACTIVE" | "INACTIVE" }) => Promise<void>;
     deactivateTenant: (id: string) => Promise<void>;
-    reactivateTenant: (id: string) => Promise<void>; // [新增] 激活店铺的 action
+    reactivateTenant: (id: string) => Promise<void>;
 }
 
 export const useTenantStore = create<TenantState>((set, get) => ({
     tenants: [],
     loading: false,
-    fetchTenants: async () => {
+    total: 0,
+    page: 1,
+    pageSize: 10,
+    fetchTenants: async (params) => {
         set({ loading: true });
         try {
-            const response = await apiClient.get<Tenant[]>("/super-admin/tenants");
-            set({ tenants: response.data, loading: false });
+            const { page, pageSize, search, sortBy } = params;
+            const response = await apiClient.get<PaginatedResponse<Tenant>>("/super-admin/tenants", {
+                params: {
+                    page,
+                    limit: pageSize,
+                    search: search || undefined, // 确保空字符串不被发送
+                    sortBy,
+                },
+            });
+            set({
+                tenants: response.data.data,
+                total: response.data.total,
+                page: response.data.page,
+                pageSize: response.data.limit,
+                loading: false,
+            });
         } catch (error) {
             console.error("Failed to fetch tenants:", error);
             set({ loading: false });
@@ -28,7 +48,8 @@ export const useTenantStore = create<TenantState>((set, get) => ({
     createTenant: async (name: string) => {
         try {
             await apiClient.post("/super-admin/tenants", { name });
-            await get().fetchTenants();
+            // 创建成功后，刷新当前页的列表
+            await get().fetchTenants({ page: get().page, pageSize: get().pageSize });
         } catch (error) {
             console.error("Failed to create tenant:", error);
             throw error;
@@ -37,7 +58,7 @@ export const useTenantStore = create<TenantState>((set, get) => ({
     updateTenant: async (id, data) => {
         try {
             await apiClient.patch(`/super-admin/tenants/${id}`, data);
-            await get().fetchTenants();
+            await get().fetchTenants({ page: get().page, pageSize: get().pageSize });
         } catch (error) {
             console.error(`Failed to update tenant ${id}:`, error);
             throw error;
@@ -46,17 +67,16 @@ export const useTenantStore = create<TenantState>((set, get) => ({
     deactivateTenant: async (id: string) => {
         try {
             await apiClient.delete(`/super-admin/tenants/${id}`);
-            await get().fetchTenants();
+            await get().fetchTenants({ page: get().page, pageSize: get().pageSize });
         } catch (error) {
             console.error(`Failed to deactivate tenant ${id}:`, error);
             throw error;
         }
     },
-    // [新增] 激活店铺
     reactivateTenant: async (id: string) => {
         try {
             await apiClient.patch(`/super-admin/tenants/${id}/reactivate`);
-            await get().fetchTenants();
+            await get().fetchTenants({ page: get().page, pageSize: get().pageSize });
         } catch (error) {
             console.error(`Failed to reactivate tenant ${id}:`, error);
             throw error;

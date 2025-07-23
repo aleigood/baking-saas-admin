@@ -20,7 +20,8 @@ const UserManagementPage: React.FC = () => {
 
     useEffect(() => {
         fetchUsers();
-        fetchTenants(); // 获取店铺列表用于下拉选择
+        // [修正] 为 fetchTenants 提供必要的参数，获取所有店铺用于下拉框
+        fetchTenants({ page: 1, pageSize: 1000 });
     }, [fetchUsers, fetchTenants]);
 
     // --- 创建逻辑 ---
@@ -138,11 +139,9 @@ const UserManagementPage: React.FC = () => {
                         <Input />
                     </Form.Item>
                     <Form.Item name="email" label="邮箱" rules={[{ required: true, message: "请输入邮箱!", type: "email" }]}>
-                        {/* [修改] 添加 autoComplete 属性 */}
                         <Input autoComplete="username" />
                     </Form.Item>
                     <Form.Item name="password" label="密码" rules={[{ required: true, message: "请输入密码!" }]}>
-                        {/* [修改] 添加 autoComplete 属性 */}
                         <Input.Password autoComplete="new-password" />
                     </Form.Item>
                     <Form.Item name="tenantId" label="所属店铺" rules={[{ required: true, message: "请选择一个店铺!" }]}>

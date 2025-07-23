@@ -15,7 +15,8 @@ const RecipeTemplatesPage: React.FC = () => {
     const [isUploading, setIsUploading] = useState(false);
 
     useEffect(() => {
-        fetchTenants();
+        // [修正] 为 fetchTenants 提供必要的参数，获取所有店铺用于下拉框
+        fetchTenants({ page: 1, pageSize: 1000 });
     }, [fetchTenants]);
 
     const handleDownloadTemplate = async () => {

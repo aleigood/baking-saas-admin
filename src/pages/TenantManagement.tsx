@@ -1,14 +1,24 @@
 import React, { useEffect, useState } from "react";
 import { Typography, Button, Table, Space, Tag, Modal, Form, Input, message, Popconfirm } from "antd";
-import { Plus, Edit, Trash2, RotateCcw } from "lucide-react"; // [修改] 导入新图标
+import type { TableProps } from "antd";
+import { Plus, Edit, Trash2, RotateCcw } from "lucide-react";
 import { useTenantStore } from "@/store/tenantStore";
 import { Tenant } from "@/types";
+import { useDebounce } from "@/hooks/useDebounce";
 
 const { Title } = Typography;
 
 const TenantManagementPage: React.FC = () => {
-    // [修改] 从 store 中解构出新增的 action
-    const { tenants, loading, fetchTenants, createTenant, updateTenant, deactivateTenant, reactivateTenant } = useTenantStore();
+    const {
+        tenants,
+        loading,
+        fetchTenants,
+        createTenant,
+        updateTenant,
+        deactivateTenant,
+        reactivateTenant,
+        total, // 从 store 获取 total
+    } = useTenantStore();
 
     const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
     const [isEditModalVisible, setIsEditModalVisible] = useState(false);
@@ -16,9 +26,41 @@ const TenantManagementPage: React.FC = () => {
 
     const [form] = Form.useForm();
 
+    // --- [新增] 搜索、分页和排序的状态 ---
+    const [searchTerm, setSearchTerm] = useState("");
+    const debouncedSearchTerm = useDebounce(searchTerm, 500); // 500ms 防抖
+    const [pagination, setPagination] = useState({
+        current: 1,
+        pageSize: 10,
+    });
+    const [sorter, setSorter] = useState<{ field?: string; order?: "ascend" | "descend" }>({});
+
     useEffect(() => {
-        fetchTenants();
-    }, [fetchTenants]);
+        const sortBy = sorter.field && sorter.order ? `${sorter.field}:${sorter.order === "ascend" ? "asc" : "desc"}` : undefined;
+
+        fetchTenants({
+            page: pagination.current,
+            pageSize: pagination.pageSize,
+            search: debouncedSearchTerm,
+            sortBy,
+        });
+    }, [fetchTenants, debouncedSearchTerm, pagination, sorter]);
+
+    // --- 表格变化处理器 ---
+    const handleTableChange: TableProps<Tenant>["onChange"] = (pagination, _filters, sorter) => {
+        // [修正] 移除未使用的 filters
+        setPagination({
+            current: pagination.current || 1,
+            pageSize: pagination.pageSize || 10,
+        });
+
+        if (!Array.isArray(sorter)) {
+            setSorter({
+                field: sorter.field as string,
+                order: sorter.order || undefined, // [修正] 将 null 转换成 undefined
+            });
+        }
+    };
 
     // --- 创建店铺逻辑 ---
     const showCreateModal = () => {
@@ -45,7 +87,7 @@ const TenantManagementPage: React.FC = () => {
     // --- 编辑店铺逻辑 ---
     const showEditModal = (tenant: Tenant) => {
         setEditingTenant(tenant);
-        form.setFieldsValue({ name: tenant.name, status: tenant.status });
+        form.setFieldsValue({ name: tenant.name });
         setIsEditModalVisible(true);
     };
 
@@ -66,7 +108,7 @@ const TenantManagementPage: React.FC = () => {
         }
     };
 
-    // --- 停用店铺逻辑 ---
+    // --- 停用/激活逻辑 ---
     const handleDeactivate = async (tenantId: string) => {
         try {
             await deactivateTenant(tenantId);
@@ -76,7 +118,6 @@ const TenantManagementPage: React.FC = () => {
         }
     };
 
-    // --- [新增] 激活店铺逻辑 ---
     const handleReactivate = async (tenantId: string) => {
         try {
             await reactivateTenant(tenantId);
@@ -86,11 +127,12 @@ const TenantManagementPage: React.FC = () => {
         }
     };
 
-    const columns = [
+    const columns: TableProps<Tenant>["columns"] = [
         {
             title: "店铺名称",
             dataIndex: "name",
             key: "name",
+            sorter: true,
         },
         {
             title: "状态",
@@ -102,6 +144,7 @@ const TenantManagementPage: React.FC = () => {
             title: "创建时间",
             dataIndex: "createdAt",
             key: "createdAt",
+            sorter: true,
             render: (text: string) => new Date(text).toLocaleString(),
         },
         {
@@ -119,7 +162,6 @@ const TenantManagementPage: React.FC = () => {
                             </Button>
                         </Popconfirm>
                     ) : (
-                        // [新增] 恢复正常的按钮
                         <Popconfirm title="确定要恢复此店铺吗？" onConfirm={() => handleReactivate(record.id)} okText="确定" cancelText="取消">
                             <Button icon={<RotateCcw size={14} />}>恢复正常</Button>
                         </Popconfirm>
@@ -139,7 +181,21 @@ const TenantManagementPage: React.FC = () => {
                     创建店铺
                 </Button>
             </div>
-            <Table columns={columns} dataSource={tenants} loading={loading} rowKey="id" />
+            <div className="mb-4">
+                <Input.Search placeholder="按店铺名称搜索..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} style={{ width: 300 }} />
+            </div>
+            <Table
+                columns={columns}
+                dataSource={tenants}
+                loading={loading}
+                rowKey="id"
+                pagination={{
+                    current: pagination.current,
+                    pageSize: pagination.pageSize,
+                    total: total,
+                }}
+                onChange={handleTableChange}
+            />
             {/* 创建模态框 */}
             <Modal title="创建新店铺" open={isCreateModalVisible} onOk={handleCreate} onCancel={handleCreateCancel} confirmLoading={loading}>
                 <Form form={form} layout="vertical" name="create_tenant_form">

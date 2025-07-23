@@ -27,9 +27,16 @@ export interface AdminUser {
     tenants: UserTenantInfo[];
 }
 
-// [新增] 仪表盘统计数据类型
 export interface DashboardStats {
     totalTenants: number;
     activeTenants: number;
     totalUsers: number;
+}
+
+// [新增] 定义分页响应的数据结构
+export interface PaginatedResponse<T> {
+    data: T[];
+    total: number;
+    page: number;
+    limit: number;
 }
