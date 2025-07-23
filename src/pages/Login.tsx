@@ -8,7 +8,6 @@ const { Title } = Typography;
 
 const LoginPage: React.FC = () => {
     const [loading, setLoading] = useState(false);
-    // [修正] 从 store 中解构出 logout 方法
     const { setToken, setUser, logout } = useAuthStore();
 
     const onFinish = async (values: any) => {
@@ -29,7 +28,7 @@ const LoginPage: React.FC = () => {
 
             if (userResponse.data.systemRole !== "SUPER_ADMIN") {
                 message.error("您没有权限登录此后台。");
-                logout(); // 现在可以正确调用
+                logout();
                 return;
             }
 

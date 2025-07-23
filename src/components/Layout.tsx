@@ -1,7 +1,9 @@
 import React from "react";
 import { Layout as AntLayout, Menu, Button, Avatar, Typography } from "antd";
+import type { MenuProps } from "antd";
 import { Home, Store, Users, BookCopy, LogOut } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
+import { useUIStore } from "@/store/uiStore"; // [新增] 导入 UI store
 
 const { Header, Content, Sider } = AntLayout;
 const { Title } = Typography;
@@ -12,6 +14,12 @@ interface MainLayoutProps {
 
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     const { user, logout } = useAuthStore();
+    const { activePage, setActivePage } = useUIStore(); // [新增] 使用 UI store
+
+    // [新增] 菜单点击事件处理
+    const handleMenuClick: MenuProps["onClick"] = (e) => {
+        setActivePage(e.key as any);
+    };
 
     return (
         <AntLayout style={{ minHeight: "100vh" }}>
@@ -23,13 +31,15 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                 </div>
                 <Menu
                     mode="inline"
-                    defaultSelectedKeys={["1"]}
+                    selectedKeys={[activePage]} // [修改] 使用 store 中的状态
+                    onClick={handleMenuClick} // [修改] 绑定点击事件
                     style={{ borderRight: 0 }}
                     items={[
-                        { key: "1", icon: <Home size={16} />, label: "仪表盘" },
-                        { key: "2", icon: <Store size={16} />, label: "店铺管理" },
-                        { key: "3", icon: <Users size={16} />, label: "用户管理" },
-                        { key: "4", icon: <BookCopy size={16} />, label: "配方模板" },
+                        // [修改] 为每个菜单项指定唯一的 key
+                        { key: "dashboard", icon: <Home size={16} />, label: "仪表盘" },
+                        { key: "tenants", icon: <Store size={16} />, label: "店铺管理" },
+                        { key: "users", icon: <Users size={16} />, label: "用户管理" },
+                        { key: "recipes", icon: <BookCopy size={16} />, label: "配方模板" },
                     ]}
                 />
             </Sider>
