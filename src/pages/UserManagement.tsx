@@ -1,16 +1,20 @@
 import React, { useEffect, useState } from "react";
-import { Typography, Button, Table, Space, Tag, Modal, Form, Input, message, Select } from "antd";
-import { Plus, Edit } from "lucide-react";
+import { Typography, Button, Table, Space, Tag, Modal, Form, Input, message, Select, Popconfirm } from "antd";
+import { Plus, Edit, Trash2, RotateCcw } from "lucide-react";
 import { useAdminUserStore } from "@/store/adminUserStore";
 import { useTenantStore } from "@/store/tenantStore";
 import { AdminUser } from "@/types";
+import { useDebounce } from "@/hooks/useDebounce";
+import { useAuthStore } from "@/store/authStore";
+import type { TableProps } from "antd";
 
 const { Title } = Typography;
 const { Option } = Select;
 
 const UserManagementPage: React.FC = () => {
-    const { users, loading: usersLoading, fetchUsers, createOwner, updateUser } = useAdminUserStore();
+    const { users, loading: usersLoading, fetchUsers, createOwner, updateUser, updateUserStatus, total } = useAdminUserStore();
     const { tenants, fetchTenants } = useTenantStore();
+    const { user: currentUser } = useAuthStore();
 
     const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
     const [isEditModalVisible, setIsEditModalVisible] = useState(false);
@@ -18,22 +22,46 @@ const UserManagementPage: React.FC = () => {
 
     const [form] = Form.useForm();
 
+    const [searchTerm, setSearchTerm] = useState("");
+    const debouncedSearchTerm = useDebounce(searchTerm, 500);
+    const [pagination, setPagination] = useState({ current: 1, pageSize: 10 });
+    const [sorter, setSorter] = useState<{ field?: string; order?: "ascend" | "descend" }>({});
+
     useEffect(() => {
-        fetchUsers();
-        // [修正] 为 fetchTenants 提供必要的参数，获取所有店铺用于下拉框
-        fetchTenants({ page: 1, pageSize: 1000 });
-    }, [fetchUsers, fetchTenants]);
+        const sortBy = sorter.field && sorter.order ? `${sorter.field}:${sorter.order === "ascend" ? "asc" : "desc"}` : undefined;
+        fetchUsers({
+            page: pagination.current,
+            pageSize: pagination.pageSize,
+            search: debouncedSearchTerm,
+            sortBy,
+        });
+    }, [fetchUsers, debouncedSearchTerm, pagination, sorter]);
+
+    useEffect(() => {
+        if (isCreateModalVisible) {
+            fetchTenants({ page: 1, pageSize: 1000 });
+        }
+    }, [isCreateModalVisible, fetchTenants]);
+
+    const handleTableChange: TableProps<AdminUser>["onChange"] = (pagination, _filters, sorter) => {
+        setPagination({
+            current: pagination.current || 1,
+            pageSize: pagination.pageSize || 10,
+        });
+        if (!Array.isArray(sorter)) {
+            setSorter({
+                field: sorter.field as string,
+                order: sorter.order || undefined,
+            });
+        }
+    };
 
     // --- 创建逻辑 ---
     const showCreateModal = () => {
         form.resetFields();
         setIsCreateModalVisible(true);
     };
-
-    const handleCreateCancel = () => {
-        setIsCreateModalVisible(false);
-    };
-
+    const handleCreateCancel = () => setIsCreateModalVisible(false);
     const handleCreateOwner = async () => {
         try {
             const values = await form.validateFields();
@@ -43,7 +71,6 @@ const UserManagementPage: React.FC = () => {
         } catch (error: any) {
             const errorMessage = error.response?.data?.message || "创建失败，请重试";
             message.error(errorMessage);
-            console.error("Failed to create owner:", error);
         }
     };
 
@@ -53,12 +80,10 @@ const UserManagementPage: React.FC = () => {
         form.setFieldsValue({ name: user.name });
         setIsEditModalVisible(true);
     };
-
     const handleEditCancel = () => {
         setIsEditModalVisible(false);
         setEditingUser(null);
     };
-
     const handleUpdate = async () => {
         if (!editingUser) return;
         try {
@@ -71,16 +96,24 @@ const UserManagementPage: React.FC = () => {
         }
     };
 
-    const columns = [
+    // --- 状态变更逻辑 ---
+    const handleStatusChange = async (userId: string, status: "ACTIVE" | "INACTIVE") => {
+        try {
+            await updateUserStatus(userId, status);
+            message.success(`用户状态已更新为 ${status === "ACTIVE" ? "正常" : "已停用"}`);
+        } catch (error) {
+            message.error("操作失败");
+        }
+    };
+
+    const columns: TableProps<AdminUser>["columns"] = [
+        { title: "姓名", dataIndex: "name", key: "name", sorter: true },
+        { title: "邮箱", dataIndex: "email", key: "email", sorter: true },
         {
-            title: "姓名",
-            dataIndex: "name",
-            key: "name",
-        },
-        {
-            title: "邮箱",
-            dataIndex: "email",
-            key: "email",
+            title: "状态",
+            dataIndex: "status",
+            key: "status",
+            render: (status: string) => <Tag color={status === "ACTIVE" ? "green" : "red"}>{status === "ACTIVE" ? "正常" : "已停用"}</Tag>,
         },
         {
             title: "系统角色",
@@ -106,18 +139,47 @@ const UserManagementPage: React.FC = () => {
             title: "注册时间",
             dataIndex: "createdAt",
             key: "createdAt",
+            sorter: true,
             render: (text: string) => new Date(text).toLocaleString(),
         },
         {
             title: "操作",
             key: "action",
-            render: (_: any, record: AdminUser) => (
-                <Space size="middle">
-                    <Button icon={<Edit size={14} />} onClick={() => showEditModal(record)}>
-                        编辑
-                    </Button>
-                </Space>
-            ),
+            render: (_: any, record: AdminUser) => {
+                const isCurrentUser = record.id === currentUser?.id;
+                return (
+                    <Space size="middle">
+                        <Button icon={<Edit size={14} />} onClick={() => showEditModal(record)} disabled={isCurrentUser}>
+                            编辑
+                        </Button>
+                        {record.status === "ACTIVE" ? (
+                            <Popconfirm
+                                title="确定要停用此用户吗？"
+                                onConfirm={() => handleStatusChange(record.id, "INACTIVE")}
+                                okText="确定"
+                                cancelText="取消"
+                                disabled={isCurrentUser}
+                            >
+                                <Button icon={<Trash2 size={14} />} danger disabled={isCurrentUser}>
+                                    停用
+                                </Button>
+                            </Popconfirm>
+                        ) : (
+                            <Popconfirm
+                                title="确定要恢复此用户吗？"
+                                onConfirm={() => handleStatusChange(record.id, "ACTIVE")}
+                                okText="确定"
+                                cancelText="取消"
+                                disabled={isCurrentUser}
+                            >
+                                <Button icon={<RotateCcw size={14} />} disabled={isCurrentUser}>
+                                    恢复
+                                </Button>
+                            </Popconfirm>
+                        )}
+                    </Space>
+                );
+            },
         },
     ];
 
@@ -131,7 +193,21 @@ const UserManagementPage: React.FC = () => {
                     创建老板账号
                 </Button>
             </div>
-            <Table columns={columns} dataSource={users} loading={usersLoading} rowKey="id" />
+            <div className="mb-4">
+                <Input.Search placeholder="按姓名或邮箱搜索..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} style={{ width: 300 }} />
+            </div>
+            <Table
+                columns={columns}
+                dataSource={users}
+                loading={usersLoading}
+                rowKey="id"
+                pagination={{
+                    current: pagination.current,
+                    pageSize: pagination.pageSize,
+                    total: total,
+                }}
+                onChange={handleTableChange}
+            />
             {/* 创建模态框 */}
             <Modal title="创建老板账号" open={isCreateModalVisible} onOk={handleCreateOwner} onCancel={handleCreateCancel} confirmLoading={usersLoading}>
                 <Form form={form} layout="vertical" name="create_owner_form">

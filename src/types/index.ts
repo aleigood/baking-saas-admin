@@ -1,7 +1,3 @@
-/**
- * 文件路径: src/types/index.ts
- * 文件描述: [新增] 定义项目共享的 TypeScript 类型。
- */
 export interface Tenant {
     id: string;
     name: string;
@@ -23,6 +19,7 @@ export interface AdminUser {
     name: string;
     email: string | null;
     systemRole: "SUPER_ADMIN" | null;
+    status: "ACTIVE" | "INACTIVE"; // [新增] 用户状态
     createdAt: string;
     tenants: UserTenantInfo[];
 }

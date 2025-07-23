@@ -1,11 +1,18 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
+// [修改] 更新 User 类型，增加 id 字段
+interface User {
+    id: string;
+    name: string;
+    systemRole: string;
+}
+
 interface AuthState {
     token: string | null;
-    user: { name: string; systemRole: string } | null;
+    user: User | null; // [修改] 使用新的 User 类型
     setToken: (token: string) => void;
-    setUser: (user: { name: string; systemRole: string }) => void;
+    setUser: (user: User) => void; // [修改] 使用新的 User 类型
     logout: () => void;
 }
 
