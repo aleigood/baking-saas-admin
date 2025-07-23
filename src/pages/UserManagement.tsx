@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Typography, Button, Table, Space, Tag, Modal, Form, Input, message, Select } from "antd";
-import { Plus } from "lucide-react";
+import { Plus, Edit } from "lucide-react";
 import { useAdminUserStore } from "@/store/adminUserStore";
 import { useTenantStore } from "@/store/tenantStore";
 import { AdminUser } from "@/types";
@@ -9,9 +9,13 @@ const { Title } = Typography;
 const { Option } = Select;
 
 const UserManagementPage: React.FC = () => {
-    const { users, loading: usersLoading, fetchUsers, createOwner } = useAdminUserStore();
+    const { users, loading: usersLoading, fetchUsers, createOwner, updateUser } = useAdminUserStore();
     const { tenants, fetchTenants } = useTenantStore();
-    const [isModalVisible, setIsModalVisible] = useState(false);
+
+    const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
+    const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+    const [editingUser, setEditingUser] = useState<AdminUser | null>(null);
+
     const [form] = Form.useForm();
 
     useEffect(() => {
@@ -19,13 +23,14 @@ const UserManagementPage: React.FC = () => {
         fetchTenants(); // 获取店铺列表用于下拉选择
     }, [fetchUsers, fetchTenants]);
 
-    const showModal = () => {
+    // --- 创建逻辑 ---
+    const showCreateModal = () => {
         form.resetFields();
-        setIsModalVisible(true);
+        setIsCreateModalVisible(true);
     };
 
-    const handleCancel = () => {
-        setIsModalVisible(false);
+    const handleCreateCancel = () => {
+        setIsCreateModalVisible(false);
     };
 
     const handleCreateOwner = async () => {
@@ -33,11 +38,35 @@ const UserManagementPage: React.FC = () => {
             const values = await form.validateFields();
             await createOwner(values);
             message.success("老板账号创建成功");
-            setIsModalVisible(false);
+            setIsCreateModalVisible(false);
         } catch (error: any) {
             const errorMessage = error.response?.data?.message || "创建失败，请重试";
             message.error(errorMessage);
             console.error("Failed to create owner:", error);
+        }
+    };
+
+    // --- 编辑逻辑 ---
+    const showEditModal = (user: AdminUser) => {
+        setEditingUser(user);
+        form.setFieldsValue({ name: user.name });
+        setIsEditModalVisible(true);
+    };
+
+    const handleEditCancel = () => {
+        setIsEditModalVisible(false);
+        setEditingUser(null);
+    };
+
+    const handleUpdate = async () => {
+        if (!editingUser) return;
+        try {
+            const values = await form.validateFields();
+            await updateUser(editingUser.id, { name: values.name });
+            message.success("用户信息更新成功");
+            handleEditCancel();
+        } catch (error) {
+            message.error("更新失败");
         }
     };
 
@@ -63,13 +92,13 @@ const UserManagementPage: React.FC = () => {
             dataIndex: "tenants",
             key: "tenants",
             render: (tenants: AdminUser["tenants"]) => (
-                <>
+                <Space direction="vertical">
                     {tenants.map((t, index) => (
                         <Tag key={index} color="blue">
                             {t.tenant.name} ({t.role})
                         </Tag>
                     ))}
-                </>
+                </Space>
             ),
         },
         {
@@ -81,9 +110,11 @@ const UserManagementPage: React.FC = () => {
         {
             title: "操作",
             key: "action",
-            render: () => (
+            render: (_: any, record: AdminUser) => (
                 <Space size="middle">
-                    <a>编辑</a>
+                    <Button icon={<Edit size={14} />} onClick={() => showEditModal(record)}>
+                        编辑
+                    </Button>
                 </Space>
             ),
         },
@@ -95,21 +126,24 @@ const UserManagementPage: React.FC = () => {
                 <Title level={2} style={{ margin: 0 }}>
                     用户管理
                 </Title>
-                <Button type="primary" icon={<Plus size={16} />} onClick={showModal}>
+                <Button type="primary" icon={<Plus size={16} />} onClick={showCreateModal}>
                     创建老板账号
                 </Button>
             </div>
             <Table columns={columns} dataSource={users} loading={usersLoading} rowKey="id" />
-            <Modal title="创建老板账号" open={isModalVisible} onOk={handleCreateOwner} onCancel={handleCancel} confirmLoading={usersLoading}>
+            {/* 创建模态框 */}
+            <Modal title="创建老板账号" open={isCreateModalVisible} onOk={handleCreateOwner} onCancel={handleCreateCancel} confirmLoading={usersLoading}>
                 <Form form={form} layout="vertical" name="create_owner_form">
                     <Form.Item name="name" label="姓名" rules={[{ required: true, message: "请输入姓名!" }]}>
                         <Input />
                     </Form.Item>
                     <Form.Item name="email" label="邮箱" rules={[{ required: true, message: "请输入邮箱!", type: "email" }]}>
-                        <Input />
+                        {/* [修改] 添加 autoComplete 属性 */}
+                        <Input autoComplete="username" />
                     </Form.Item>
                     <Form.Item name="password" label="密码" rules={[{ required: true, message: "请输入密码!" }]}>
-                        <Input.Password />
+                        {/* [修改] 添加 autoComplete 属性 */}
+                        <Input.Password autoComplete="new-password" />
                     </Form.Item>
                     <Form.Item name="tenantId" label="所属店铺" rules={[{ required: true, message: "请选择一个店铺!" }]}>
                         <Select placeholder="请选择店铺">
@@ -119,6 +153,14 @@ const UserManagementPage: React.FC = () => {
                                 </Option>
                             ))}
                         </Select>
+                    </Form.Item>
+                </Form>
+            </Modal>
+            {/* 编辑模态框 */}
+            <Modal title="编辑用户" open={isEditModalVisible} onOk={handleUpdate} onCancel={handleEditCancel} confirmLoading={usersLoading}>
+                <Form form={form} layout="vertical" name="edit_user_form">
+                    <Form.Item name="name" label="姓名" rules={[{ required: true, message: "请输入姓名!" }]}>
+                        <Input />
                     </Form.Item>
                 </Form>
             </Modal>

@@ -1,14 +1,41 @@
-import React from "react";
-import { Typography } from "antd";
+import React, { useEffect } from "react";
+import { Typography, Row, Col, Card, Statistic, Spin } from "antd";
+import { Store, Users, ShieldCheck } from "lucide-react";
+import { useDashboardStore } from "@/store/dashboardStore";
 
-const { Title, Paragraph } = Typography;
+const { Title } = Typography;
 
 const DashboardPage: React.FC = () => {
-    // [修改] 移除 MainLayout，因为 App.tsx 会统一处理
+    const { stats, loading, fetchStats } = useDashboardStore();
+
+    useEffect(() => {
+        fetchStats();
+    }, [fetchStats]);
+
+    const StatCard: React.FC<{ title: string; value: number; icon: React.ReactNode }> = ({ title, value, icon }) => (
+        <Card>
+            <Spin spinning={loading}>
+                <Statistic title={title} value={value} prefix={icon} />
+            </Spin>
+        </Card>
+    );
+
     return (
         <>
-            <Title level={2}>欢迎来到超级管理后台</Title>
-            <Paragraph>在这里，您可以管理整个系统的店铺、用户和核心数据。</Paragraph>
+            <Title level={2} className="mb-6">
+                系统仪表盘
+            </Title>
+            <Row gutter={16}>
+                <Col span={8}>
+                    <StatCard title="总店铺数" value={stats?.totalTenants || 0} icon={<Store className="text-blue-500" />} />
+                </Col>
+                <Col span={8}>
+                    <StatCard title="活跃店铺数" value={stats?.activeTenants || 0} icon={<ShieldCheck className="text-green-500" />} />
+                </Col>
+                <Col span={8}>
+                    <StatCard title="总用户数" value={stats?.totalUsers || 0} icon={<Users className="text-purple-500" />} />
+                </Col>
+            </Row>
         </>
     );
 };

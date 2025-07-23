@@ -10,7 +10,6 @@ export interface Tenant {
     updatedAt: string;
 }
 
-// [新增] 定义用户管理页面所需的用户数据类型
 export interface UserTenantInfo {
     role: "OWNER" | "MANAGER" | "BAKER";
     tenant: {
@@ -26,4 +25,11 @@ export interface AdminUser {
     systemRole: "SUPER_ADMIN" | null;
     createdAt: string;
     tenants: UserTenantInfo[];
+}
+
+// [新增] 仪表盘统计数据类型
+export interface DashboardStats {
+    totalTenants: number;
+    activeTenants: number;
+    totalUsers: number;
 }

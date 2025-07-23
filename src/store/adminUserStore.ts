@@ -11,6 +11,7 @@ interface AdminUserStore {
     loading: boolean;
     fetchUsers: () => Promise<void>;
     createOwner: (data: any) => Promise<void>;
+    updateUser: (id: string, data: { name: string }) => Promise<void>; // [新增] 更新用户的 action
 }
 
 export const useAdminUserStore = create<AdminUserStore>((set, get) => ({
@@ -32,6 +33,16 @@ export const useAdminUserStore = create<AdminUserStore>((set, get) => ({
             await get().fetchUsers(); // 成功后刷新列表
         } catch (error) {
             console.error("Failed to create owner:", error);
+            throw error;
+        }
+    },
+    // [新增] 更新用户
+    updateUser: async (id, data) => {
+        try {
+            await apiClient.patch(`/super-admin/users/${id}`, data);
+            await get().fetchUsers(); // 成功后刷新列表
+        } catch (error) {
+            console.error(`Failed to update user ${id}:`, error);
             throw error;
         }
     },
