@@ -37,3 +37,16 @@ export interface PaginatedResponse<T> {
     page: number;
     limit: number;
 }
+
+// [修改] 创建老板账号时所需的数据类型，修复了之前的语法错误
+export interface CreateOwnerData {
+    name: string;
+    email: string;
+    password: string; // 修正了此处的类型定义
+    tenantId: string;
+}
+
+// [新增] 更新用户信息时所需的数据类型
+export interface UpdateUserData {
+    name: string;
+}

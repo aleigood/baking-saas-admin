@@ -4,9 +4,9 @@ import { Plus, Edit, Trash2, RotateCcw } from "lucide-react";
 import { useAdminUserStore } from "@/store/adminUserStore";
 import { useTenantStore } from "@/store/tenantStore";
 import { AdminUser } from "@/types";
-import { useDebounce } from "@/hooks/useDebounce";
 import { useAuthStore } from "@/store/authStore";
-import type { TableProps } from "antd";
+import { usePaginatedTable } from "@/hooks/usePaginatedTable"; // [修改] 导入新的 Hook
+import type { TableProps } from "antd"; // [新增] 导入 TableProps 类型
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -22,23 +22,8 @@ const UserManagementPage: React.FC = () => {
 
     const [form] = Form.useForm();
 
-    // --- [新增] 搜索、分页和排序的状态 ---
-    const [searchTerm, setSearchTerm] = useState("");
-    const debouncedSearchTerm = useDebounce(searchTerm, 500); // 500ms 防抖
-    const [pagination, setPagination] = useState({ current: 1, pageSize: 10 });
-    const [sorter, setSorter] = useState<{ field?: string; order?: "ascend" | "descend" }>({});
-
-    useEffect(() => {
-        // 根据 sorter 状态构建 sortBy 字符串
-        const sortBy = sorter.field && sorter.order ? `${sorter.field}:${sorter.order === "ascend" ? "asc" : "desc"}` : undefined;
-        // 每当分页、排序或搜索词变化时，重新获取用户数据
-        fetchUsers({
-            page: pagination.current,
-            pageSize: pagination.pageSize,
-            search: debouncedSearchTerm,
-            sortBy,
-        });
-    }, [fetchUsers, debouncedSearchTerm, pagination, sorter]);
+    // --- [修改] 使用 usePaginatedTable Hook 简化状态管理 ---
+    const { searchTerm, setSearchTerm, tableProps } = usePaginatedTable<AdminUser>(fetchUsers, usersLoading, total);
 
     useEffect(() => {
         // 仅在创建模态框可见时，获取所有店铺用于下拉选择
@@ -46,21 +31,6 @@ const UserManagementPage: React.FC = () => {
             fetchTenants({ page: 1, pageSize: 1000 });
         }
     }, [isCreateModalVisible, fetchTenants]);
-
-    // --- [新增] 表格变化处理器，用于捕获分页和排序事件 ---
-    const handleTableChange: TableProps<AdminUser>["onChange"] = (pagination, _filters, sorter) => {
-        setPagination({
-            current: pagination.current || 1,
-            pageSize: pagination.pageSize || 10,
-        });
-        // antd 的 sorter 可能是一个对象或数组，这里处理单个排序的情况
-        if (!Array.isArray(sorter)) {
-            setSorter({
-                field: sorter.field as string,
-                order: sorter.order || undefined,
-            });
-        }
-    };
 
     // --- 创建逻辑 ---
     const showCreateModal = () => {
@@ -108,8 +78,10 @@ const UserManagementPage: React.FC = () => {
         try {
             await updateUserStatus(userId, status);
             message.success(`用户状态已更新为 ${status === "ACTIVE" ? "正常" : "已停用"}`);
-        } catch (error) {
-            message.error("操作失败");
+        } catch (error: any) {
+            // [优化] 显示更具体的错误信息
+            const errorMessage = error.response?.data?.message || "操作失败";
+            message.error(errorMessage);
         }
     };
 
@@ -201,24 +173,11 @@ const UserManagementPage: React.FC = () => {
                     创建老板账号
                 </Button>
             </div>
-            {/* --- [新增] 搜索框 --- */}
             <div className="mb-4">
                 <Input.Search placeholder="按姓名或邮箱搜索..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} style={{ width: 300 }} />
             </div>
-            {/* --- [修改] 为表格添加加载状态、分页配置和onChange处理器 --- */}
-            <Table
-                columns={columns}
-                dataSource={users}
-                loading={usersLoading}
-                rowKey="id"
-                pagination={{
-                    current: pagination.current,
-                    pageSize: pagination.pageSize,
-                    total: total,
-                }}
-                onChange={handleTableChange}
-            />
-            {/* --- [修改] 为模态框添加加载状态 --- */}
+            {/* --- [修改] 直接使用 tableProps --- */}
+            <Table columns={columns} dataSource={users} rowKey="id" {...tableProps} />
             <Modal title="创建老板账号" open={isCreateModalVisible} onOk={handleCreateOwner} onCancel={handleCreateCancel} confirmLoading={usersLoading}>
                 <Form form={form} layout="vertical" name="create_owner_form">
                     <Form.Item name="name" label="姓名" rules={[{ required: true, message: "请输入姓名!" }]}>
@@ -241,7 +200,6 @@ const UserManagementPage: React.FC = () => {
                     </Form.Item>
                 </Form>
             </Modal>
-            {/* --- [修改] 为模态框添加加载状态 --- */}
             <Modal title="编辑用户" open={isEditModalVisible} onOk={handleUpdate} onCancel={handleEditCancel} confirmLoading={usersLoading}>
                 <Form form={form} layout="vertical" name="edit_user_form">
                     <Form.Item name="name" label="姓名" rules={[{ required: true, message: "请输入姓名!" }]}>

@@ -1,24 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Typography, Button, Table, Space, Tag, Modal, Form, Input, message, Popconfirm } from "antd";
-import type { TableProps } from "antd";
 import { Plus, Edit, Trash2, RotateCcw } from "lucide-react";
 import { useTenantStore } from "@/store/tenantStore";
 import { Tenant } from "@/types";
-import { useDebounce } from "@/hooks/useDebounce";
+import { usePaginatedTable } from "@/hooks/usePaginatedTable"; // [修改] 导入新的 Hook
+import type { TableProps } from "antd"; // [新增] 导入 TableProps 类型
 
 const { Title } = Typography;
 
 const TenantManagementPage: React.FC = () => {
-    const {
-        tenants,
-        loading,
-        fetchTenants,
-        createTenant,
-        updateTenant,
-        deactivateTenant,
-        reactivateTenant,
-        total, // 从 store 获取 total
-    } = useTenantStore();
+    const { tenants, loading, fetchTenants, createTenant, updateTenant, deactivateTenant, reactivateTenant, total } = useTenantStore();
 
     const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
     const [isEditModalVisible, setIsEditModalVisible] = useState(false);
@@ -26,41 +17,8 @@ const TenantManagementPage: React.FC = () => {
 
     const [form] = Form.useForm();
 
-    // --- [新增] 搜索、分页和排序的状态 ---
-    const [searchTerm, setSearchTerm] = useState("");
-    const debouncedSearchTerm = useDebounce(searchTerm, 500); // 500ms 防抖
-    const [pagination, setPagination] = useState({
-        current: 1,
-        pageSize: 10,
-    });
-    const [sorter, setSorter] = useState<{ field?: string; order?: "ascend" | "descend" }>({});
-
-    useEffect(() => {
-        const sortBy = sorter.field && sorter.order ? `${sorter.field}:${sorter.order === "ascend" ? "asc" : "desc"}` : undefined;
-
-        fetchTenants({
-            page: pagination.current,
-            pageSize: pagination.pageSize,
-            search: debouncedSearchTerm,
-            sortBy,
-        });
-    }, [fetchTenants, debouncedSearchTerm, pagination, sorter]);
-
-    // --- 表格变化处理器 ---
-    const handleTableChange: TableProps<Tenant>["onChange"] = (pagination, _filters, sorter) => {
-        // [修正] 移除未使用的 filters
-        setPagination({
-            current: pagination.current || 1,
-            pageSize: pagination.pageSize || 10,
-        });
-
-        if (!Array.isArray(sorter)) {
-            setSorter({
-                field: sorter.field as string,
-                order: sorter.order || undefined, // [修正] 将 null 转换成 undefined
-            });
-        }
-    };
+    // --- [修改] 使用 usePaginatedTable Hook 简化状态管理 ---
+    const { searchTerm, setSearchTerm, tableProps } = usePaginatedTable<Tenant>(fetchTenants, loading, total);
 
     // --- 创建店铺逻辑 ---
     const showCreateModal = () => {
@@ -184,18 +142,8 @@ const TenantManagementPage: React.FC = () => {
             <div className="mb-4">
                 <Input.Search placeholder="按店铺名称搜索..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} style={{ width: 300 }} />
             </div>
-            <Table
-                columns={columns}
-                dataSource={tenants}
-                loading={loading}
-                rowKey="id"
-                pagination={{
-                    current: pagination.current,
-                    pageSize: pagination.pageSize,
-                    total: total,
-                }}
-                onChange={handleTableChange}
-            />
+            {/* --- [修改] 直接使用 tableProps --- */}
+            <Table columns={columns} dataSource={tenants} rowKey="id" {...tableProps} />
             {/* 创建模态框 */}
             <Modal title="创建新店铺" open={isCreateModalVisible} onOk={handleCreate} onCancel={handleCreateCancel} confirmLoading={loading}>
                 <Form form={form} layout="vertical" name="create_tenant_form">

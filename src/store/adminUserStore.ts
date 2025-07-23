@@ -4,7 +4,7 @@
  */
 import { create } from "zustand";
 import apiClient from "@/services/api";
-import { AdminUser, PaginatedResponse } from "@/types";
+import { AdminUser, PaginatedResponse, CreateOwnerData, UpdateUserData } from "@/types"; // [修改] 导入新类型
 
 interface AdminUserStore {
     users: AdminUser[];
@@ -13,9 +13,11 @@ interface AdminUserStore {
     page: number;
     pageSize: number;
     fetchUsers: (params: { page: number; pageSize: number; search?: string; sortBy?: string }) => Promise<void>;
-    createOwner: (data: any) => Promise<void>;
-    updateUser: (id: string, data: { name: string }) => Promise<void>;
-    updateUserStatus: (id: string, status: "ACTIVE" | "INACTIVE") => Promise<void>; // [新增]
+    // [修改] 使用强类型
+    createOwner: (data: CreateOwnerData) => Promise<void>;
+    // [修改] 使用强类型
+    updateUser: (id: string, data: UpdateUserData) => Promise<void>;
+    updateUserStatus: (id: string, status: "ACTIVE" | "INACTIVE") => Promise<void>;
 }
 
 export const useAdminUserStore = create<AdminUserStore>((set, get) => ({
@@ -43,7 +45,8 @@ export const useAdminUserStore = create<AdminUserStore>((set, get) => ({
             set({ loading: false });
         }
     },
-    createOwner: async (data) => {
+    // [修改] 使用强类型
+    createOwner: async (data: CreateOwnerData) => {
         try {
             await apiClient.post("/super-admin/users/owner", data);
             await get().fetchUsers({ page: get().page, pageSize: get().pageSize });
@@ -52,7 +55,8 @@ export const useAdminUserStore = create<AdminUserStore>((set, get) => ({
             throw error;
         }
     },
-    updateUser: async (id, data) => {
+    // [修改] 使用强类型
+    updateUser: async (id: string, data: UpdateUserData) => {
         try {
             await apiClient.patch(`/super-admin/users/${id}`, data);
             await get().fetchUsers({ page: get().page, pageSize: get().pageSize });
@@ -61,7 +65,6 @@ export const useAdminUserStore = create<AdminUserStore>((set, get) => ({
             throw error;
         }
     },
-    // [新增] 更新用户状态
     updateUserStatus: async (id, status) => {
         try {
             await apiClient.patch(`/super-admin/users/${id}/status`, { status });
