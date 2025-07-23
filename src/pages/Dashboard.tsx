@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Typography, Row, Col, Card, Statistic, Spin } from "antd";
+import { Typography, Row, Col, Card, Statistic, Spin, message } from "antd";
 import { Store, Users, ShieldCheck } from "lucide-react";
 import { useDashboardStore } from "@/store/dashboardStore";
 
@@ -9,7 +9,17 @@ const DashboardPage: React.FC = () => {
     const { stats, loading, fetchStats } = useDashboardStore();
 
     useEffect(() => {
-        fetchStats();
+        // 新增-定义一个异步函数来加载数据并处理错误
+        const loadStats = async () => {
+            try {
+                await fetchStats();
+            } catch (error) {
+                // 新增-如果store中抛出错误，在这里捕获并用message组件提示用户
+                message.error((error as Error).message);
+            }
+        };
+        // 调用异步函数
+        void loadStats();
     }, [fetchStats]);
 
     const StatCard: React.FC<{ title: string; value: number; icon: React.ReactNode }> = ({ title, value, icon }) => (

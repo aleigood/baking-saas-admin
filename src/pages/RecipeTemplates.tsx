@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { Typography, Button, message, Upload, Select, Form, Space } from "antd";
 import { Download, Upload as UploadIcon } from "lucide-react";
 import type { UploadProps } from "antd";
@@ -9,10 +9,10 @@ const { Title, Paragraph } = Typography;
 const { Option } = Select;
 
 const RecipeTemplatesPage: React.FC = () => {
-    const { getTemplate, importRecipe } = useRecipeTemplateStore();
+    // [修改] 从 store 中获取统一的 loading 状态
+    const { loading, getTemplate, importRecipe } = useRecipeTemplateStore();
     const { tenants, fetchTenants } = useTenantStore();
     const [form] = Form.useForm();
-    const [isUploading, setIsUploading] = useState(false);
 
     useEffect(() => {
         // [修正] 为 fetchTenants 提供必要的参数，获取所有店铺用于下拉框
@@ -58,15 +58,15 @@ const RecipeTemplatesPage: React.FC = () => {
                     }
                     const recipeData = JSON.parse(content);
 
-                    setIsUploading(true);
+                    // 调用 store 中的 action
                     await importRecipe(tenantId, recipeData);
                     message.success("配方导入成功！");
                     form.resetFields();
-                } catch (parseError) {
-                    message.error("文件格式错误，请确保是有效的JSON文件。");
-                    console.error("File parsing error:", parseError);
-                } finally {
-                    setIsUploading(false);
+                } catch (err: any) {
+                    // [优化] 捕获从 store 抛出的 API 错误或文件解析错误
+                    const apiError = err.response?.data?.message;
+                    message.error(apiError || "导入失败，请检查文件格式或联系管理员。");
+                    console.error("File parsing or import error:", err);
                 }
             };
             reader.readAsText(file);
@@ -115,7 +115,8 @@ const RecipeTemplatesPage: React.FC = () => {
                     </Form.Item>
 
                     <Form.Item>
-                        <Button type="primary" htmlType="submit" loading={isUploading}>
+                        {/* [修改] 按钮的 loading 状态直接来自 store */}
+                        <Button type="primary" htmlType="submit" loading={loading}>
                             开始导入
                         </Button>
                     </Form.Item>
