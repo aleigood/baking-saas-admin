@@ -9,7 +9,6 @@ const { Title, Paragraph } = Typography;
 const { Option } = Select;
 
 const RecipeTemplatesPage: React.FC = () => {
-    // [修改] 从 store 中获取统一的 loading 状态
     const { loading, getTemplate, importRecipe } = useRecipeTemplateStore();
     const { tenants, fetchTenants } = useTenantStore();
     const [form] = Form.useForm();
@@ -58,14 +57,23 @@ const RecipeTemplatesPage: React.FC = () => {
                     }
                     const recipeData = JSON.parse(content);
 
-                    // 调用 store 中的 action
                     await importRecipe(tenantId, recipeData);
                     message.success("配方导入成功！");
                     form.resetFields();
                 } catch (err: any) {
-                    // [优化] 捕获从 store 抛出的 API 错误或文件解析错误
-                    const apiError = err.response?.data?.message;
-                    message.error(apiError || "导入失败，请检查文件格式或联系管理员。");
+                    // [修改] 优化错误处理，以正确显示来自NestJS ValidationPipe的详细错误列表。
+                    const apiErrors = err.response?.data?.message;
+                    let displayError = "导入失败，请检查文件格式或联系管理员。";
+
+                    if (typeof apiErrors === "string") {
+                        // 如果后端返回的是单个字符串错误
+                        displayError = apiErrors;
+                    } else if (Array.isArray(apiErrors)) {
+                        // 如果后端返回的是一个错误数组，将它们合并成一个字符串
+                        displayError = apiErrors.join("; ");
+                    }
+
+                    message.error(displayError, 5); // 增加消息显示时间
                     console.error("File parsing or import error:", err);
                 }
             };
@@ -115,7 +123,6 @@ const RecipeTemplatesPage: React.FC = () => {
                     </Form.Item>
 
                     <Form.Item>
-                        {/* [修改] 按钮的 loading 状态直接来自 store */}
                         <Button type="primary" htmlType="submit" loading={loading}>
                             开始导入
                         </Button>
