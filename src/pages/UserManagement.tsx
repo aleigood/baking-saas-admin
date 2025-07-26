@@ -1,19 +1,17 @@
-import React, { useEffect, useState } from "react";
-import { Typography, Button, Table, Space, Tag, Modal, Form, Input, message, Select, Popconfirm } from "antd";
+import React, { useState } from "react";
+import { Typography, Button, Table, Space, Tag, Modal, Form, Input, message, Popconfirm } from "antd";
 import { Plus, Edit, Trash2, RotateCcw } from "lucide-react";
 import { useAdminUserStore } from "@/store/adminUserStore";
-import { useTenantStore } from "@/store/tenantStore";
 import { AdminUser } from "@/types";
 import { useAuthStore } from "@/store/authStore";
-import { usePaginatedTable } from "@/hooks/usePaginatedTable"; // [修改] 导入新的 Hook
-import type { TableProps } from "antd"; // [新增] 导入 TableProps 类型
+import { usePaginatedTable } from "@/hooks/usePaginatedTable";
+import type { TableProps } from "antd";
 
 const { Title } = Typography;
-const { Option } = Select;
 
 const UserManagementPage: React.FC = () => {
-    const { users, loading: usersLoading, fetchUsers, createOwner, updateUser, updateUserStatus, total } = useAdminUserStore();
-    const { tenants, fetchTenants } = useTenantStore();
+    // [修改] 从 store 中获取 createUser 方法，移除 createOwner
+    const { users, loading: usersLoading, fetchUsers, createUser, updateUser, updateUserStatus, total } = useAdminUserStore();
     const { user: currentUser } = useAuthStore();
 
     const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
@@ -22,30 +20,21 @@ const UserManagementPage: React.FC = () => {
 
     const [form] = Form.useForm();
 
-    // --- [修改] 使用 usePaginatedTable Hook 简化状态管理 ---
     const { searchTerm, setSearchTerm, tableProps } = usePaginatedTable<AdminUser>(fetchUsers, usersLoading, total);
 
-    useEffect(() => {
-        // 仅在创建模态框可见时，获取所有店铺用于下拉选择
-        if (isCreateModalVisible) {
-            fetchTenants({ page: 1, pageSize: 1000 });
-        }
-    }, [isCreateModalVisible, fetchTenants]);
-
-    // --- 创建逻辑 ---
+    // --- [修改] 创建用户逻辑 ---
     const showCreateModal = () => {
         form.resetFields();
         setIsCreateModalVisible(true);
     };
     const handleCreateCancel = () => setIsCreateModalVisible(false);
-    const handleCreateOwner = async () => {
+    const handleCreateUser = async () => {
         try {
             const values = await form.validateFields();
-            await createOwner(values);
-            message.success("老板账号创建成功");
+            await createUser(values); // 调用新的 createUser 方法
+            message.success("用户账号创建成功");
             setIsCreateModalVisible(false);
         } catch (error: any) {
-            // 提供更详细的错误反馈
             const errorMessage = error.response?.data?.message || "创建失败，请重试";
             message.error(errorMessage);
         }
@@ -79,7 +68,6 @@ const UserManagementPage: React.FC = () => {
             await updateUserStatus(userId, status);
             message.success(`用户状态已更新为 ${status === "ACTIVE" ? "正常" : "已停用"}`);
         } catch (error: any) {
-            // [优化] 显示更具体的错误信息
             const errorMessage = error.response?.data?.message || "操作失败";
             message.error(errorMessage);
         }
@@ -106,11 +94,15 @@ const UserManagementPage: React.FC = () => {
             key: "tenants",
             render: (tenants: AdminUser["tenants"]) => (
                 <Space direction="vertical">
-                    {tenants.map((t, index) => (
-                        <Tag key={index} color="blue">
-                            {t.tenant.name} ({t.role})
-                        </Tag>
-                    ))}
+                    {tenants.length > 0 ? (
+                        tenants.map((t, index) => (
+                            <Tag key={index} color="blue">
+                                {t.tenant.name} ({t.role})
+                            </Tag>
+                        ))
+                    ) : (
+                        <Tag>未分配</Tag> // [新增] 为未分配的用户显示提示
+                    )}
                 </Space>
             ),
         },
@@ -125,7 +117,6 @@ const UserManagementPage: React.FC = () => {
             title: "操作",
             key: "action",
             render: (_: any, record: AdminUser) => {
-                // 禁止操作当前登录的超级管理员自己
                 const isCurrentUser = record.id === currentUser?.id;
                 return (
                     <Space size="middle">
@@ -169,17 +160,18 @@ const UserManagementPage: React.FC = () => {
                 <Title level={2} style={{ margin: 0 }}>
                     用户管理
                 </Title>
+                {/* [修改] 按钮文字和功能 */}
                 <Button type="primary" icon={<Plus size={16} />} onClick={showCreateModal}>
-                    创建老板账号
+                    创建用户
                 </Button>
             </div>
             <div className="mb-4">
                 <Input.Search placeholder="按姓名或邮箱搜索..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} style={{ width: 300 }} />
             </div>
-            {/* --- [修改] 直接使用 tableProps --- */}
             <Table columns={columns} dataSource={users} rowKey="id" {...tableProps} />
-            <Modal title="创建老板账号" open={isCreateModalVisible} onOk={handleCreateOwner} onCancel={handleCreateCancel} confirmLoading={usersLoading}>
-                <Form form={form} layout="vertical" name="create_owner_form">
+            {/* [修改] 创建用户的模态框 */}
+            <Modal title="创建新用户" open={isCreateModalVisible} onOk={handleCreateUser} onCancel={handleCreateCancel} confirmLoading={usersLoading}>
+                <Form form={form} layout="vertical" name="create_user_form">
                     <Form.Item name="name" label="姓名" rules={[{ required: true, message: "请输入姓名!" }]}>
                         <Input />
                     </Form.Item>
@@ -188,15 +180,6 @@ const UserManagementPage: React.FC = () => {
                     </Form.Item>
                     <Form.Item name="password" label="密码" rules={[{ required: true, message: "请输入密码!" }]}>
                         <Input.Password autoComplete="new-password" />
-                    </Form.Item>
-                    <Form.Item name="tenantId" label="所属店铺" rules={[{ required: true, message: "请选择一个店铺!" }]}>
-                        <Select placeholder="请选择店铺">
-                            {tenants.map((tenant) => (
-                                <Option key={tenant.id} value={tenant.id}>
-                                    {tenant.name}
-                                </Option>
-                            ))}
-                        </Select>
                     </Form.Item>
                 </Form>
             </Modal>

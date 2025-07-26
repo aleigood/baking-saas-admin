@@ -1,15 +1,18 @@
-import React, { useState } from "react";
-import { Typography, Button, Table, Space, Tag, Modal, Form, Input, message, Popconfirm } from "antd";
+import React, { useState, useEffect } from "react";
+import { Typography, Button, Table, Space, Tag, Modal, Form, Input, message, Popconfirm, Select } from "antd";
 import { Plus, Edit, Trash2, RotateCcw } from "lucide-react";
 import { useTenantStore } from "@/store/tenantStore";
-import { Tenant } from "@/types";
-import { usePaginatedTable } from "@/hooks/usePaginatedTable"; // [修改] 导入新的 Hook
-import type { TableProps } from "antd"; // [新增] 导入 TableProps 类型
+import { useAdminUserStore } from "@/store/adminUserStore";
+import { Tenant, AdminUser } from "@/types";
+import { usePaginatedTable } from "@/hooks/usePaginatedTable";
+import type { TableProps } from "antd";
 
 const { Title } = Typography;
+const { Option } = Select;
 
 const TenantManagementPage: React.FC = () => {
     const { tenants, loading, fetchTenants, createTenant, updateTenant, deactivateTenant, reactivateTenant, total } = useTenantStore();
+    const { users, fetchUsers } = useAdminUserStore();
 
     const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
     const [isEditModalVisible, setIsEditModalVisible] = useState(false);
@@ -17,10 +20,19 @@ const TenantManagementPage: React.FC = () => {
 
     const [form] = Form.useForm();
 
-    // --- [修改] 使用 usePaginatedTable Hook 简化状态管理 ---
     const { searchTerm, setSearchTerm, tableProps } = usePaginatedTable<Tenant>(fetchTenants, loading, total);
 
-    // --- 创建店铺逻辑 ---
+    // [修改] 获取所有非超级管理员用户作为潜在的老板人选
+    const potentialOwners = users.filter((user) => !user.systemRole);
+
+    // [新增] 当创建模态框打开时，获取所有用户
+    useEffect(() => {
+        if (isCreateModalVisible) {
+            fetchUsers({ page: 1, pageSize: 1000 }); // 获取足够多的用户以供选择
+        }
+    }, [isCreateModalVisible, fetchUsers]);
+
+    // --- [修改] 创建店铺逻辑 ---
     const showCreateModal = () => {
         form.resetFields();
         setIsCreateModalVisible(true);
@@ -33,11 +45,12 @@ const TenantManagementPage: React.FC = () => {
     const handleCreate = async () => {
         try {
             const values = await form.validateFields();
-            await createTenant(values.name);
+            await createTenant({ name: values.name, ownerId: values.ownerId });
             message.success("店铺创建成功");
             setIsCreateModalVisible(false);
-        } catch (error) {
-            message.error("店铺创建失败");
+        } catch (error: any) {
+            const errorMessage = error.response?.data?.message || "店铺创建失败";
+            message.error(errorMessage);
             console.error("Failed to create tenant:", error);
         }
     };
@@ -92,6 +105,13 @@ const TenantManagementPage: React.FC = () => {
             key: "name",
             sorter: true,
         },
+        // [新增] 显示老板信息的列
+        {
+            title: "老板",
+            dataIndex: "owner",
+            key: "owner",
+            render: (owner: Tenant["owner"]) => (owner ? `${owner.name} (${owner.email || "N/A"})` : "未指定"),
+        },
         {
             title: "状态",
             dataIndex: "status",
@@ -142,13 +162,25 @@ const TenantManagementPage: React.FC = () => {
             <div className="mb-4">
                 <Input.Search placeholder="按店铺名称搜索..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} style={{ width: 300 }} />
             </div>
-            {/* --- [修改] 直接使用 tableProps --- */}
             <Table columns={columns} dataSource={tenants} rowKey="id" {...tableProps} />
-            {/* 创建模态框 */}
+            {/* [修改] 创建店铺的模态框 */}
             <Modal title="创建新店铺" open={isCreateModalVisible} onOk={handleCreate} onCancel={handleCreateCancel} confirmLoading={loading}>
                 <Form form={form} layout="vertical" name="create_tenant_form">
                     <Form.Item name="name" label="店铺名称" rules={[{ required: true, message: "请输入店铺名称!" }]}>
                         <Input />
+                    </Form.Item>
+                    <Form.Item name="ownerId" label="指定老板" rules={[{ required: true, message: "请选择一位老板!" }]}>
+                        <Select
+                            placeholder="从用户列表中选择一位作为老板"
+                            showSearch
+                            filterOption={(input, option) => (option?.children?.toString() ?? "").toLowerCase().includes(input.toLowerCase())}
+                        >
+                            {potentialOwners.map((user: AdminUser) => (
+                                <Option key={user.id} value={user.id}>
+                                    {user.name} ({user.email})
+                                </Option>
+                            ))}
+                        </Select>
                     </Form.Item>
                 </Form>
             </Modal>

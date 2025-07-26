@@ -1,10 +1,11 @@
 /**
  * 文件路径: src/store/adminUserStore.ts
- * 文件描述: [新增] 用于管理超级后台用户列表的状态。
+ * 文件描述: [修改] 更新了用户创建逻辑，以支持创建独立用户。
  */
 import { create } from "zustand";
 import apiClient from "@/services/api";
-import { AdminUser, PaginatedResponse, CreateOwnerData, UpdateUserData } from "@/types"; // [修改] 导入新类型
+// [修改] 导入新类型
+import { AdminUser, PaginatedResponse, CreateUserData, UpdateUserData, CreateOwnerData } from "@/types";
 
 interface AdminUserStore {
     users: AdminUser[];
@@ -13,9 +14,10 @@ interface AdminUserStore {
     page: number;
     pageSize: number;
     fetchUsers: (params: { page: number; pageSize: number; search?: string; sortBy?: string }) => Promise<void>;
-    // [修改] 使用强类型
+    // [新增] 创建独立用户的方法
+    createUser: (data: CreateUserData) => Promise<void>;
+    // [废弃] 此方法已不再使用
     createOwner: (data: CreateOwnerData) => Promise<void>;
-    // [修改] 使用强类型
     updateUser: (id: string, data: UpdateUserData) => Promise<void>;
     updateUserStatus: (id: string, status: "ACTIVE" | "INACTIVE") => Promise<void>;
 }
@@ -45,7 +47,17 @@ export const useAdminUserStore = create<AdminUserStore>((set, get) => ({
             set({ loading: false });
         }
     },
-    // [修改] 使用强类型
+    // [新增] 创建独立用户的实现
+    createUser: async (data: CreateUserData) => {
+        try {
+            await apiClient.post("/super-admin/users", data);
+            // 创建成功后刷新用户列表
+            await get().fetchUsers({ page: get().page, pageSize: get().pageSize });
+        } catch (error) {
+            console.error("Failed to create user:", error);
+            throw error;
+        }
+    },
     createOwner: async (data: CreateOwnerData) => {
         try {
             await apiClient.post("/super-admin/users/owner", data);
@@ -55,7 +67,6 @@ export const useAdminUserStore = create<AdminUserStore>((set, get) => ({
             throw error;
         }
     },
-    // [修改] 使用强类型
     updateUser: async (id: string, data: UpdateUserData) => {
         try {
             await apiClient.patch(`/super-admin/users/${id}`, data);

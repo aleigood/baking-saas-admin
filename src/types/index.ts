@@ -4,6 +4,11 @@ export interface Tenant {
     status: "ACTIVE" | "INACTIVE";
     createdAt: string;
     updatedAt: string;
+    // [新增] 为店铺信息添加老板字段
+    owner?: {
+        name: string;
+        email: string | null;
+    } | null;
 }
 
 export interface UserTenantInfo {
@@ -19,7 +24,7 @@ export interface AdminUser {
     name: string;
     email: string | null;
     systemRole: "SUPER_ADMIN" | null;
-    status: "ACTIVE" | "INACTIVE"; // [新增] 用户状态
+    status: "ACTIVE" | "INACTIVE";
     createdAt: string;
     tenants: UserTenantInfo[];
 }
@@ -30,7 +35,6 @@ export interface DashboardStats {
     totalUsers: number;
 }
 
-// [新增] 定义分页响应的数据结构
 export interface PaginatedResponse<T> {
     data: T[];
     total: number;
@@ -38,15 +42,27 @@ export interface PaginatedResponse<T> {
     limit: number;
 }
 
-// [修改] 创建老板账号时所需的数据类型，修复了之前的语法错误
+// [新增] 创建独立用户时所需的数据类型
+export interface CreateUserData {
+    name: string;
+    email: string;
+    password: string;
+}
+
+// [废弃] 此类型不再需要，由 CreateUserData 和 CreateTenantData 替代
 export interface CreateOwnerData {
     name: string;
     email: string;
-    password: string; // 修正了此处的类型定义
+    password: string;
     tenantId: string;
 }
 
-// [新增] 更新用户信息时所需的数据类型
+// [新增] 创建店铺时所需的数据类型
+export interface CreateTenantData {
+    name: string;
+    ownerId: string;
+}
+
 export interface UpdateUserData {
     name: string;
 }

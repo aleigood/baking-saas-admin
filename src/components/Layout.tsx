@@ -35,10 +35,10 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                     onClick={handleMenuClick} // [修改] 绑定点击事件
                     style={{ borderRight: 0 }}
                     items={[
-                        // [修改] 为每个菜单项指定唯一的 key
+                        // [修改] 调整菜单顺序
                         { key: "dashboard", icon: <Home size={16} />, label: "仪表盘" },
-                        { key: "tenants", icon: <Store size={16} />, label: "店铺管理" },
                         { key: "users", icon: <Users size={16} />, label: "用户管理" },
+                        { key: "tenants", icon: <Store size={16} />, label: "店铺管理" },
                         { key: "recipes", icon: <BookCopy size={16} />, label: "配方模板" },
                     ]}
                 />
