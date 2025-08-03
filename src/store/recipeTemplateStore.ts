@@ -1,36 +1,127 @@
 /**
  * 文件路径: src/store/recipeTemplateStore.ts
- * 文件描述: [新增] 用于管理配方模板的下载和导入功能。
+ * 文件描述: [修改] getTemplate 现在返回用户提供的、使用百分比配方的示例。
+ * [新增] createRecipe 方法在发送数据前，会自动将百分比配方转换为小数。
  */
 import { create } from "zustand";
 import apiClient from "@/services/api";
+import { CreateRecipeDto, RecipeType, ProductIngredientType } from "@/types/recipe"; // [新增] 引入配方类型
 
 interface RecipeTemplateState {
-    loading: boolean; // 新增-统一的加载状态，用于导入操作
+    loading: boolean;
     getTemplate: () => Promise<any>;
-    importRecipe: (tenantId: string, recipeData: any) => Promise<void>;
+    createRecipe: (tenantId: string, recipeData: CreateRecipeDto) => Promise<void>;
 }
 
 export const useRecipeTemplateStore = create<RecipeTemplateState>((set) => ({
-    loading: false, // 初始化加载状态
+    loading: false,
+    // [修改] getTemplate 现在返回一个包含三个详细配方案例的数组，使用用户友好的百分比格式。
     getTemplate: async () => {
-        try {
-            const response = await apiClient.get("/super-admin/recipes/template");
-            return response.data;
-        } catch (error) {
-            console.error("Failed to get recipe template:", error);
-            throw error;
-        }
+        const recipeExamples: CreateRecipeDto[] = [
+            // 1. 预制面团 (PRE_DOUGH) 示例：烫种
+            {
+                name: "烫种",
+                type: RecipeType.PRE_DOUGH,
+                lossRatio: 0.1,
+                ingredients: [
+                    { name: "高筋粉", ratio: 100, isFlour: true },
+                    { name: "水", ratio: 200, waterContent: 1 },
+                    { name: "糖", ratio: 20 },
+                    { name: "盐", ratio: 2 },
+                ],
+                procedure: ["在室温放置冷却后放入冰箱第二天使用"],
+            },
+            // 2. 附加项 (EXTRA) 示例：卡仕达酱
+            {
+                name: "卡仕达酱",
+                type: RecipeType.EXTRA,
+                lossRatio: 0.05,
+                ingredients: [
+                    { name: "低筋粉", ratio: 12, isFlour: true },
+                    { name: "牛奶", ratio: 100, waterContent: 0.87 },
+                    { name: "蛋黄", ratio: 20 },
+                    { name: "糖", ratio: 20 },
+                    { name: "黄油", ratio: 5 },
+                ],
+                procedure: ["牛奶温度达到90度后搅拌"],
+            },
+            // 3. 主配方 (MAIN) 示例：甜面团
+            {
+                name: "甜面团",
+                type: RecipeType.MAIN,
+                targetTemp: 26,
+                ingredients: [
+                    { name: "高筋粉", ratio: 92, isFlour: true },
+                    { name: "烫种", ratio: 25.76 },
+                    { name: "水", ratio: 40, waterContent: 1 },
+                    { name: "盐", ratio: 0.84 },
+                    { name: "糖", ratio: 18.4 },
+                    { name: "半干酵母", ratio: 1.3 },
+                    { name: "黄油", ratio: 8 },
+                    { name: "奶粉", ratio: 2 },
+                    { name: "全蛋", ratio: 20, waterContent: 0.75 },
+                    { name: "麦芽精", ratio: 1 },
+                ],
+                products: [
+                    {
+                        name: "熊掌卡仕达",
+                        weight: 50,
+                        // [修复] 将 `weight` 属性修正为 `weightInGrams` 以匹配类型定义
+                        fillings: [{ name: "卡仕达酱", type: ProductIngredientType.FILLING, weightInGrams: 30 }],
+                        mixIn: [{ name: "香草籽", type: ProductIngredientType.MIX_IN, ratio: 1 }],
+                        procedure: ["烘烤：烤前刷过筛蛋液，一盘10个 上火210 下火180 烤10分钟"],
+                    },
+                    {
+                        name: "小吐司",
+                        weight: 250,
+                        procedure: ["烘烤：一盘6个 上火210 下火180 烤20分钟"],
+                    },
+                ],
+                procedure: [
+                    "搅拌：采用后糖法，搅拌至完全扩展，出缸温度26度",
+                    "发酵：二发温度35度50分钟",
+                    "烘烤：烤前刷过筛蛋液，两个杏仁片 一盘10个 上火210 下火180 烤10分钟",
+                ],
+            },
+        ];
+        return Promise.resolve(recipeExamples);
     },
-    importRecipe: async (tenantId: string, recipeData: any) => {
-        set({ loading: true }); // 开始导入时，设置loading为true
+    // [修改] 实现配方创建逻辑，并在发送前自动转换配方比例
+    createRecipe: async (tenantId: string, recipeData: CreateRecipeDto) => {
+        set({ loading: true });
         try {
-            await apiClient.post(`/super-admin/tenants/${tenantId}/recipes/import`, recipeData);
+            // 对配方数据进行深拷贝，以避免修改原始对象
+            const transformedRecipe = JSON.parse(JSON.stringify(recipeData));
+
+            // 将所有原料的百分比 ratio 转换为后端需要的小数
+            if (transformedRecipe.ingredients) {
+                transformedRecipe.ingredients.forEach((ing: { ratio?: number }) => {
+                    if (typeof ing.ratio === "number") {
+                        ing.ratio /= 100;
+                    }
+                });
+            }
+
+            // 将产品中 mixIn 原料的百分比 ratio 转换为小数
+            if (transformedRecipe.products) {
+                transformedRecipe.products.forEach((prod: { mixIn?: { ratio?: number }[] }) => {
+                    if (prod.mixIn) {
+                        prod.mixIn.forEach((mix: { ratio?: number }) => {
+                            if (typeof mix.ratio === "number") {
+                                mix.ratio /= 100;
+                            }
+                        });
+                    }
+                });
+            }
+
+            // 调用后端的单配方创建接口，发送转换后的数据
+            await apiClient.post(`/super-admin/tenants/${tenantId}/recipes`, transformedRecipe);
         } catch (error) {
-            console.error("Failed to import recipe:", error);
+            console.error("Failed to create recipe:", error);
             throw error; // 向上抛出错误，以便UI层捕获
         } finally {
-            set({ loading: false }); // 无论成功或失败，结束后都设置loading为false
+            set({ loading: false });
         }
     },
 }));

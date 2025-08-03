@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Typography, Button, Table, Space, Tag, Modal, Form, Input, message, Popconfirm, Select } from "antd";
-import { Plus, Edit, Trash2, RotateCcw } from "lucide-react";
+import { Typography, Button, Table, Space, Modal, Form, Input, message, Popconfirm, Select } from "antd";
+// [修改] 移除 RotateCcw 图标，因为它对应的“恢复”功能已不存在
+import { Plus, Edit, Trash2 } from "lucide-react";
 import { useTenantStore } from "@/store/tenantStore";
 import { useAdminUserStore } from "@/store/adminUserStore";
 import { Tenant, AdminUser } from "@/types";
@@ -11,7 +12,8 @@ const { Title } = Typography;
 const { Option } = Select;
 
 const TenantManagementPage: React.FC = () => {
-    const { tenants, loading, fetchTenants, createTenant, updateTenant, deactivateTenant, reactivateTenant, total } = useTenantStore();
+    // [修改] 替换 deactivateTenant 和 reactivateTenant 为 deleteTenant
+    const { tenants, loading, fetchTenants, createTenant, updateTenant, deleteTenant, total } = useTenantStore();
     const { users, fetchUsers } = useAdminUserStore();
 
     const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
@@ -22,17 +24,17 @@ const TenantManagementPage: React.FC = () => {
 
     const { searchTerm, setSearchTerm, tableProps } = usePaginatedTable<Tenant>(fetchTenants, loading, total);
 
-    // [修改] 获取所有非超级管理员用户作为潜在的老板人选
-    const potentialOwners = users.filter((user) => !user.systemRole);
+    // [修改] 获取所有用户作为潜在的老板人选
+    const potentialOwners = users;
 
     // [新增] 当创建模态框打开时，获取所有用户
     useEffect(() => {
         if (isCreateModalVisible) {
-            fetchUsers({ page: 1, pageSize: 1000 }); // 获取足够多的用户以供选择
+            // [修改] 获取所有用户以填充下拉列表
+            fetchUsers({ page: 1, pageSize: 1000 });
         }
     }, [isCreateModalVisible, fetchUsers]);
 
-    // --- [修改] 创建店铺逻辑 ---
     const showCreateModal = () => {
         form.resetFields();
         setIsCreateModalVisible(true);
@@ -45,6 +47,7 @@ const TenantManagementPage: React.FC = () => {
     const handleCreate = async () => {
         try {
             const values = await form.validateFields();
+            // [修改] 调用新的 createTenant 方法，传入 name 和 ownerId
             await createTenant({ name: values.name, ownerId: values.ownerId });
             message.success("店铺创建成功");
             setIsCreateModalVisible(false);
@@ -55,7 +58,6 @@ const TenantManagementPage: React.FC = () => {
         }
     };
 
-    // --- 编辑店铺逻辑 ---
     const showEditModal = (tenant: Tenant) => {
         setEditingTenant(tenant);
         form.setFieldsValue({ name: tenant.name });
@@ -79,20 +81,11 @@ const TenantManagementPage: React.FC = () => {
         }
     };
 
-    // --- 停用/激活逻辑 ---
-    const handleDeactivate = async (tenantId: string) => {
+    // --- [修改] 删除店铺逻辑 ---
+    const handleDelete = async (tenantId: string) => {
         try {
-            await deactivateTenant(tenantId);
-            message.success("店铺已停用");
-        } catch (error) {
-            message.error("操作失败");
-        }
-    };
-
-    const handleReactivate = async (tenantId: string) => {
-        try {
-            await reactivateTenant(tenantId);
-            message.success("店铺已恢复正常");
+            await deleteTenant(tenantId);
+            message.success("店铺已删除");
         } catch (error) {
             message.error("操作失败");
         }
@@ -105,19 +98,14 @@ const TenantManagementPage: React.FC = () => {
             key: "name",
             sorter: true,
         },
-        // [新增] 显示老板信息的列
+        // [修改] 显示老板手机号的列
         {
             title: "老板",
-            dataIndex: "owner",
+            dataIndex: "ownerName",
             key: "owner",
-            render: (owner: Tenant["owner"]) => (owner ? `${owner.name} (${owner.email || "N/A"})` : "未指定"),
+            render: (ownerName: string | null) => (ownerName ? ownerName : "未指定"),
         },
-        {
-            title: "状态",
-            dataIndex: "status",
-            key: "status",
-            render: (status: string) => <Tag color={status === "ACTIVE" ? "green" : "red"}>{status === "ACTIVE" ? "正常" : "已停用"}</Tag>,
-        },
+        // [修改] 移除状态列，因为后端模型已无此字段
         {
             title: "创建时间",
             dataIndex: "createdAt",
@@ -133,17 +121,12 @@ const TenantManagementPage: React.FC = () => {
                     <Button icon={<Edit size={14} />} onClick={() => showEditModal(record)}>
                         编辑
                     </Button>
-                    {record.status === "ACTIVE" ? (
-                        <Popconfirm title="确定要停用此店铺吗？" onConfirm={() => handleDeactivate(record.id)} okText="确定" cancelText="取消">
-                            <Button icon={<Trash2 size={14} />} danger>
-                                停用
-                            </Button>
-                        </Popconfirm>
-                    ) : (
-                        <Popconfirm title="确定要恢复此店铺吗？" onConfirm={() => handleReactivate(record.id)} okText="确定" cancelText="取消">
-                            <Button icon={<RotateCcw size={14} />}>恢复正常</Button>
-                        </Popconfirm>
-                    )}
+                    {/* [修改] 将“停用”改为“删除”，并移除恢复功能 */}
+                    <Popconfirm title="确定要永久删除此店铺吗？此操作不可恢复。" onConfirm={() => handleDelete(record.id)} okText="确定删除" cancelText="取消">
+                        <Button icon={<Trash2 size={14} />} danger>
+                            删除
+                        </Button>
+                    </Popconfirm>
                 </Space>
             ),
         },
@@ -173,11 +156,12 @@ const TenantManagementPage: React.FC = () => {
                         <Select
                             placeholder="从用户列表中选择一位作为老板"
                             showSearch
+                            // [修改] 筛选逻辑基于用户手机号
                             filterOption={(input, option) => (option?.children?.toString() ?? "").toLowerCase().includes(input.toLowerCase())}
                         >
                             {potentialOwners.map((user: AdminUser) => (
                                 <Option key={user.id} value={user.id}>
-                                    {user.name} ({user.email})
+                                    {user.phone}
                                 </Option>
                             ))}
                         </Select>

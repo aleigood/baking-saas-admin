@@ -12,9 +12,10 @@ interface TenantState {
     fetchTenants: (params: { page: number; pageSize: number; search?: string; sortBy?: string }) => Promise<void>;
     // [修改] 更新 createTenant 的类型签名
     createTenant: (data: CreateTenantData) => Promise<void>;
-    updateTenant: (id: string, data: { name?: string; status?: "ACTIVE" | "INACTIVE" }) => Promise<void>;
-    deactivateTenant: (id: string) => Promise<void>;
-    reactivateTenant: (id: string) => Promise<void>;
+    // [修改] 更新 updateTenant 的类型签名，后端仅支持更新名称
+    updateTenant: (id: string, data: { name?: string }) => Promise<void>;
+    // [修改] 将停用操作改为删除操作，以匹配后端API
+    deleteTenant: (id: string) => Promise<void>;
 }
 
 export const useTenantStore = create<TenantState>((set, get) => ({
@@ -27,6 +28,7 @@ export const useTenantStore = create<TenantState>((set, get) => ({
         set({ loading: true });
         try {
             const { page, pageSize, search, sortBy } = params;
+            // [修改] 调用新的店铺列表API，并适配分页参数
             const response = await apiClient.get<PaginatedResponse<Tenant>>("/super-admin/tenants", {
                 params: {
                     page,
@@ -35,11 +37,12 @@ export const useTenantStore = create<TenantState>((set, get) => ({
                     sortBy,
                 },
             });
+            // [修改] 根据后端返回的 meta 对象更新状态
             set({
                 tenants: response.data.data,
-                total: response.data.total,
-                page: response.data.page,
-                pageSize: response.data.limit,
+                total: response.data.meta.total,
+                page: response.data.meta.page,
+                pageSize: response.data.meta.limit,
                 loading: false,
             });
         } catch (error) {
@@ -47,7 +50,7 @@ export const useTenantStore = create<TenantState>((set, get) => ({
             set({ loading: false });
         }
     },
-    // [修改] 更新 createTenant 的实现
+    // [修改] 更新 createTenant 的实现以匹配新的API要求
     createTenant: async (data: CreateTenantData) => {
         try {
             await apiClient.post("/super-admin/tenants", data);
@@ -58,6 +61,7 @@ export const useTenantStore = create<TenantState>((set, get) => ({
             throw error;
         }
     },
+    // [修改] 更新 updateTenant 的实现
     updateTenant: async (id, data) => {
         try {
             await apiClient.patch(`/super-admin/tenants/${id}`, data);
@@ -67,21 +71,13 @@ export const useTenantStore = create<TenantState>((set, get) => ({
             throw error;
         }
     },
-    deactivateTenant: async (id: string) => {
+    // [修改] 将 deactivateTenant 重构为 deleteTenant，调用新的DELETE接口
+    deleteTenant: async (id: string) => {
         try {
             await apiClient.delete(`/super-admin/tenants/${id}`);
             await get().fetchTenants({ page: get().page, pageSize: get().pageSize });
         } catch (error) {
-            console.error(`Failed to deactivate tenant ${id}:`, error);
-            throw error;
-        }
-    },
-    reactivateTenant: async (id: string) => {
-        try {
-            await apiClient.patch(`/super-admin/tenants/${id}/reactivate`);
-            await get().fetchTenants({ page: get().page, pageSize: get().pageSize });
-        } catch (error) {
-            console.error(`Failed to reactivate tenant ${id}:`, error);
+            console.error(`Failed to delete tenant ${id}:`, error);
             throw error;
         }
     },

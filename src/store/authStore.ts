@@ -1,11 +1,11 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-// [修改] 更新 User 类型，增加 id 字段
+// [修改] 更新 User 类型，移除 name，增加 phone 和 id
 interface User {
     id: string;
-    name: string;
-    systemRole: string;
+    phone: string;
+    role: string; // 全局角色，例如 SUPER_ADMIN
 }
 
 interface AuthState {

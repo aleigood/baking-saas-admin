@@ -46,8 +46,10 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             <AntLayout>
                 <Header className="bg-white border-b border-gray-200 px-6 flex justify-end items-center">
                     <div className="flex items-center gap-4">
-                        <Avatar style={{ backgroundColor: "#c47d57" }}>{user?.name?.[0]?.toUpperCase() || "A"}</Avatar>
-                        <span className="font-medium">{user?.name || "Admin"}</span>
+                        {/* [修改] 用户名字段已变更为 phone，适配 Avatar 显示 */}
+                        <Avatar style={{ backgroundColor: "#c47d57" }}>{user?.phone?.[0]?.toUpperCase() || "A"}</Avatar>
+                        {/* [修改] 用户名字段已变更为 phone，适配 span 显示 */}
+                        <span className="font-medium">{user?.phone || "Admin"}</span>
                         <Button icon={<LogOut size={16} />} onClick={logout}>
                             退出登录
                         </Button>

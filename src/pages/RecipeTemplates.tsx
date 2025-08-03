@@ -1,22 +1,49 @@
-import React, { useEffect } from "react";
-import { Typography, Button, message, Upload, Select, Form, Space } from "antd";
-import { Download, Upload as UploadIcon } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { Typography, Button, message, Upload, Select, Form, Space, Checkbox, Tag } from "antd";
+import type { CheckboxChangeEvent } from "antd/es/checkbox";
+import { Download, Upload as UploadIcon, PlusCircle } from "lucide-react";
 import type { UploadProps } from "antd";
 import { useRecipeTemplateStore } from "@/store/recipeTemplateStore";
-import { useTenantStore } from "@/store/tenantStore";
+import { useAdminUserStore } from "@/store/adminUserStore";
+import { CreateRecipeDto } from "@/types/recipe";
+import { AdminUser } from "@/types";
 
 const { Title, Paragraph } = Typography;
 const { Option } = Select;
+const { CheckableTag } = Tag;
 
 const RecipeTemplatesPage: React.FC = () => {
-    const { loading, getTemplate, importRecipe } = useRecipeTemplateStore();
-    const { tenants, fetchTenants } = useTenantStore();
+    const { loading, getTemplate, createRecipe } = useRecipeTemplateStore();
+    const { allUsers, fetchAllUsers } = useAdminUserStore();
     const [form] = Form.useForm();
 
+    const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null);
+    const [recipesToImport, setRecipesToImport] = useState<CreateRecipeDto[]>([]);
+    const [selectedTenantIds, setSelectedTenantIds] = useState<string[]>([]);
+
     useEffect(() => {
-        // [修正] 为 fetchTenants 提供必要的参数，获取所有店铺用于下拉框
-        fetchTenants({ page: 1, pageSize: 1000 });
-    }, [fetchTenants]);
+        fetchAllUsers();
+    }, [fetchAllUsers]);
+
+    const handleUserChange = (userId: string) => {
+        const user = allUsers.find((u) => u.id === userId);
+        setSelectedUser(user || null);
+        setSelectedTenantIds([]);
+        form.setFieldsValue({ tenantIds: [] });
+    };
+
+    const handleTenantTagChange = (tenantId: string, checked: boolean) => {
+        const nextSelectedTags = checked ? [...selectedTenantIds, tenantId] : selectedTenantIds.filter((t) => t !== tenantId);
+        setSelectedTenantIds(nextSelectedTags);
+        form.setFieldsValue({ tenantIds: nextSelectedTags });
+    };
+
+    const handleSelectAllTenants = (e: CheckboxChangeEvent) => {
+        const allTenantIds = selectedUser?.tenants.map((t) => t.tenant.id) || [];
+        const newSelectedIds = e.target.checked ? allTenantIds : [];
+        setSelectedTenantIds(newSelectedIds);
+        form.setFieldsValue({ tenantIds: newSelectedIds });
+    };
 
     const handleDownloadTemplate = async () => {
         try {
@@ -26,7 +53,7 @@ const RecipeTemplatesPage: React.FC = () => {
             const url = URL.createObjectURL(blob);
             const a = document.createElement("a");
             a.href = url;
-            a.download = "recipe_template.json";
+            a.download = "recipe_examples.json";
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -40,75 +67,127 @@ const RecipeTemplatesPage: React.FC = () => {
     const handleImport = async () => {
         try {
             const values = await form.validateFields();
-            const { tenantId, upload } = values;
-            const file = upload[0].originFileObj;
+            const { tenantIds } = values;
 
-            if (!file) {
-                message.error("请选择要上传的文件");
+            if (recipesToImport.length === 0) {
+                message.error("请先选择并加载有效的配方文件。");
                 return;
             }
 
+            const importPromises = tenantIds.flatMap((tenantId: string) => recipesToImport.map((recipe) => createRecipe(tenantId, recipe)));
+
+            await Promise.all(importPromises);
+
+            message.success(`成功将 ${recipesToImport.length} 个配方导入到 ${tenantIds.length} 个店铺中！`);
+
+            form.resetFields();
+            setRecipesToImport([]);
+            setSelectedUser(null);
+            setSelectedTenantIds([]);
+        } catch (err: any) {
+            const apiErrors = err.response?.data?.message;
+            let displayError = "导入失败，请检查文件格式或联系管理员。";
+
+            if (typeof apiErrors === "string") {
+                displayError = apiErrors;
+            } else if (Array.isArray(apiErrors)) {
+                displayError = apiErrors.join("; ");
+            }
+
+            message.error(displayError, 5);
+            console.error("Import error:", err);
+        }
+    };
+
+    const uploadProps: UploadProps = {
+        beforeUpload: (file) => {
             const reader = new FileReader();
-            reader.onload = async (e) => {
+            reader.onload = (e) => {
                 try {
                     const content = e.target?.result;
                     if (typeof content !== "string") {
                         throw new Error("无法读取文件内容");
                     }
-                    const recipeData = JSON.parse(content);
-
-                    await importRecipe(tenantId, recipeData);
-                    message.success("配方导入成功！");
-                    form.resetFields();
-                } catch (err: any) {
-                    // [修改] 优化错误处理，以正确显示来自NestJS ValidationPipe的详细错误列表。
-                    const apiErrors = err.response?.data?.message;
-                    let displayError = "导入失败，请检查文件格式或联系管理员。";
-
-                    if (typeof apiErrors === "string") {
-                        // 如果后端返回的是单个字符串错误
-                        displayError = apiErrors;
-                    } else if (Array.isArray(apiErrors)) {
-                        // 如果后端返回的是一个错误数组，将它们合并成一个字符串
-                        displayError = apiErrors.join("; ");
-                    }
-
-                    message.error(displayError, 5); // 增加消息显示时间
-                    console.error("File parsing or import error:", err);
+                    const data = JSON.parse(content);
+                    const recipes = Array.isArray(data) ? data : [data];
+                    setRecipesToImport(recipes);
+                    message.success(`成功加载 ${recipes.length} 个配方，请选择店铺后点击“开始导入”。`);
+                } catch (err) {
+                    message.error("文件解析失败，请确保是合法的JSON格式。");
+                    console.error("File parsing error:", err);
                 }
             };
             reader.readAsText(file);
-        } catch (formError) {
-            console.log("Form validation failed:", formError);
-        }
-    };
-
-    const uploadProps: UploadProps = {
-        beforeUpload: () => false, // 阻止自动上传
+            return false;
+        },
         maxCount: 1,
         accept: ".json",
+        onRemove: () => {
+            setRecipesToImport([]);
+        },
     };
 
     return (
         <div>
-            <Title level={2}>配方模板与导入</Title>
-            <Paragraph>您可以下载标准的JSON模板文件来准备配方数据，然后为指定的店铺批量导入配方。</Paragraph>
+            <Title level={2}>配方导入</Title>
+            <Paragraph>您可以下载标准的JSON模板文件来准备配方数据，然后为指定的用户下的一个或多个店铺批量导入配方。</Paragraph>
 
             <Space direction="vertical" size="large" style={{ width: "100%" }}>
                 <Button type="dashed" icon={<Download size={16} />} onClick={handleDownloadTemplate}>
                     下载配方模板
                 </Button>
 
-                <Form form={form} layout="vertical" onFinish={handleImport} style={{ maxWidth: 400 }}>
-                    <Form.Item name="tenantId" label="选择目标店铺" rules={[{ required: true, message: "请选择一个店铺!" }]}>
-                        <Select placeholder="请选择要导入配方的店铺">
-                            {tenants.map((tenant) => (
-                                <Option key={tenant.id} value={tenant.id}>
-                                    {tenant.name}
+                <Form form={form} layout="vertical" onFinish={handleImport} style={{ maxWidth: 500 }}>
+                    <Form.Item name="userId" label="选择用户" rules={[{ required: true, message: "请选择一个用户!" }]}>
+                        <Select
+                            showSearch
+                            placeholder="搜索并选择用户"
+                            onChange={handleUserChange}
+                            filterOption={(input, option) => (option?.children?.toString() ?? "").toLowerCase().includes(input.toLowerCase())}
+                        >
+                            {allUsers.map((user) => (
+                                <Option key={user.id} value={user.id}>
+                                    {user.phone}
                                 </Option>
                             ))}
                         </Select>
                     </Form.Item>
+
+                    {selectedUser && (
+                        <Form.Item label="选择目标店铺" required>
+                            <Checkbox
+                                onChange={handleSelectAllTenants}
+                                checked={selectedUser.tenants.length > 0 && selectedTenantIds.length === selectedUser.tenants.length}
+                                indeterminate={selectedTenantIds.length > 0 && selectedTenantIds.length < selectedUser.tenants.length}
+                                style={{ marginBottom: 8 }}
+                            >
+                                全选
+                            </Checkbox>
+                            <Form.Item name="tenantIds" noStyle rules={[{ required: true, message: "请至少选择一个店铺!" }]}>
+                                {/* [修复] 为 Option 添加 children 属性以解决类型错误 */}
+                                <Select mode="multiple" style={{ display: "none" }}>
+                                    {selectedUser.tenants.map((t) => (
+                                        <Option key={t.tenant.id} value={t.tenant.id}>
+                                            {t.tenant.name}
+                                        </Option>
+                                    ))}
+                                </Select>
+                            </Form.Item>
+                            <div className="flex flex-wrap gap-2">
+                                {selectedUser.tenants.map((t) => (
+                                    // [修改] 为 CheckableTag 添加了内联样式，使其更美观
+                                    <CheckableTag
+                                        key={t.tenant.id}
+                                        checked={selectedTenantIds.includes(t.tenant.id)}
+                                        onChange={(checked) => handleTenantTagChange(t.tenant.id, checked)}
+                                        style={{ padding: "4px 12px", fontSize: "14px", border: "1px solid #d9d9d9", borderRadius: "6px" }}
+                                    >
+                                        {t.tenant.name}
+                                    </CheckableTag>
+                                ))}
+                            </div>
+                        </Form.Item>
+                    )}
 
                     <Form.Item
                         name="upload"
@@ -123,7 +202,7 @@ const RecipeTemplatesPage: React.FC = () => {
                     </Form.Item>
 
                     <Form.Item>
-                        <Button type="primary" htmlType="submit" loading={loading}>
+                        <Button type="primary" htmlType="submit" loading={loading} icon={<PlusCircle size={16} />}>
                             开始导入
                         </Button>
                     </Form.Item>

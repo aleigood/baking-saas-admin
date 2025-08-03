@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { Typography, Button, Table, Space, Tag, Modal, Form, Input, message, Popconfirm } from "antd";
-import { Plus, Edit, Trash2, RotateCcw } from "lucide-react";
+import { Typography, Button, Table, Space, Tag, Modal, Form, Input, message, Switch } from "antd";
+import { Plus, Edit } from "lucide-react";
 import { useAdminUserStore } from "@/store/adminUserStore";
 import { AdminUser } from "@/types";
 import { useAuthStore } from "@/store/authStore";
@@ -10,8 +10,8 @@ import type { TableProps } from "antd";
 const { Title } = Typography;
 
 const UserManagementPage: React.FC = () => {
-    // [修改] 从 store 中获取 createUser 方法，移除 createOwner
-    const { users, loading: usersLoading, fetchUsers, createUser, updateUser, updateUserStatus, total } = useAdminUserStore();
+    // [修改] 从 store 中获取新的方法
+    const { users, loading: usersLoading, fetchUsers, createUser, updateUser, total } = useAdminUserStore();
     const { user: currentUser } = useAuthStore();
 
     const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
@@ -31,7 +31,7 @@ const UserManagementPage: React.FC = () => {
     const handleCreateUser = async () => {
         try {
             const values = await form.validateFields();
-            await createUser(values); // 调用新的 createUser 方法
+            await createUser(values);
             message.success("用户账号创建成功");
             setIsCreateModalVisible(false);
         } catch (error: any) {
@@ -40,10 +40,10 @@ const UserManagementPage: React.FC = () => {
         }
     };
 
-    // --- 编辑逻辑 ---
+    // --- [修改] 编辑逻辑，现在只允许更新手机号 ---
     const showEditModal = (user: AdminUser) => {
         setEditingUser(user);
-        form.setFieldsValue({ name: user.name });
+        form.setFieldsValue({ phone: user.phone });
         setIsEditModalVisible(true);
     };
     const handleEditCancel = () => {
@@ -54,7 +54,7 @@ const UserManagementPage: React.FC = () => {
         if (!editingUser) return;
         try {
             const values = await form.validateFields();
-            await updateUser(editingUser.id, { name: values.name });
+            await updateUser(editingUser.id, { phone: values.phone });
             message.success("用户信息更新成功");
             handleEditCancel();
         } catch (error) {
@@ -62,10 +62,10 @@ const UserManagementPage: React.FC = () => {
         }
     };
 
-    // --- 状态变更逻辑 ---
+    // --- [修改] 状态变更逻辑 ---
     const handleStatusChange = async (userId: string, status: "ACTIVE" | "INACTIVE") => {
         try {
-            await updateUserStatus(userId, status);
+            await updateUser(userId, { status });
             message.success(`用户状态已更新为 ${status === "ACTIVE" ? "正常" : "已停用"}`);
         } catch (error: any) {
             const errorMessage = error.response?.data?.message || "操作失败";
@@ -74,19 +74,29 @@ const UserManagementPage: React.FC = () => {
     };
 
     const columns: TableProps<AdminUser>["columns"] = [
-        { title: "姓名", dataIndex: "name", key: "name", sorter: true },
-        { title: "邮箱", dataIndex: "email", key: "email", sorter: true },
+        // [修改] 显示 phone 替代 name 和 email
+        { title: "手机号", dataIndex: "phone", key: "phone", sorter: true },
         {
             title: "状态",
             dataIndex: "status",
             key: "status",
-            render: (status: string) => <Tag color={status === "ACTIVE" ? "green" : "red"}>{status === "ACTIVE" ? "正常" : "已停用"}</Tag>,
+            // [修改] 使用 Switch 组件来切换用户状态
+            render: (status: "ACTIVE" | "INACTIVE", record: AdminUser) => (
+                <Switch
+                    checked={status === "ACTIVE"}
+                    onChange={(checked) => handleStatusChange(record.id, checked ? "ACTIVE" : "INACTIVE")}
+                    checkedChildren="正常"
+                    unCheckedChildren="停用"
+                    disabled={record.id === currentUser?.id}
+                />
+            ),
         },
         {
             title: "系统角色",
-            dataIndex: "systemRole",
-            key: "systemRole",
-            render: (systemRole: string | null) => (systemRole ? <Tag color="gold">超级管理员</Tag> : <Tag>普通用户</Tag>),
+            // [修改] 字段名从 systemRole 改为 role
+            dataIndex: "role",
+            key: "role",
+            render: (role: string | null) => (role === "SUPER_ADMIN" ? <Tag color="gold">超级管理员</Tag> : <Tag>普通用户</Tag>),
         },
         {
             title: "所属店铺及角色",
@@ -94,14 +104,14 @@ const UserManagementPage: React.FC = () => {
             key: "tenants",
             render: (tenants: AdminUser["tenants"]) => (
                 <Space direction="vertical">
-                    {tenants.length > 0 ? (
+                    {tenants && tenants.length > 0 ? (
                         tenants.map((t, index) => (
                             <Tag key={index} color="blue">
                                 {t.tenant.name} ({t.role})
                             </Tag>
                         ))
                     ) : (
-                        <Tag>未分配</Tag> // [新增] 为未分配的用户显示提示
+                        <Tag>未分配</Tag>
                     )}
                 </Space>
             ),
@@ -123,31 +133,7 @@ const UserManagementPage: React.FC = () => {
                         <Button icon={<Edit size={14} />} onClick={() => showEditModal(record)} disabled={isCurrentUser}>
                             编辑
                         </Button>
-                        {record.status === "ACTIVE" ? (
-                            <Popconfirm
-                                title="确定要停用此用户吗？"
-                                onConfirm={() => handleStatusChange(record.id, "INACTIVE")}
-                                okText="确定"
-                                cancelText="取消"
-                                disabled={isCurrentUser}
-                            >
-                                <Button icon={<Trash2 size={14} />} danger disabled={isCurrentUser}>
-                                    停用
-                                </Button>
-                            </Popconfirm>
-                        ) : (
-                            <Popconfirm
-                                title="确定要恢复此用户吗？"
-                                onConfirm={() => handleStatusChange(record.id, "ACTIVE")}
-                                okText="确定"
-                                cancelText="取消"
-                                disabled={isCurrentUser}
-                            >
-                                <Button icon={<RotateCcw size={14} />} disabled={isCurrentUser}>
-                                    恢复
-                                </Button>
-                            </Popconfirm>
-                        )}
+                        {/* [备注] 删除用户的操作暂时移除，因为通常后台管理会使用软删除或禁用，此处已通过状态开关实现 */}
                     </Space>
                 );
             },
@@ -160,32 +146,29 @@ const UserManagementPage: React.FC = () => {
                 <Title level={2} style={{ margin: 0 }}>
                     用户管理
                 </Title>
-                {/* [修改] 按钮文字和功能 */}
                 <Button type="primary" icon={<Plus size={16} />} onClick={showCreateModal}>
                     创建用户
                 </Button>
             </div>
             <div className="mb-4">
-                <Input.Search placeholder="按姓名或邮箱搜索..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} style={{ width: 300 }} />
+                <Input.Search placeholder="按手机号搜索..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} style={{ width: 300 }} />
             </div>
             <Table columns={columns} dataSource={users} rowKey="id" {...tableProps} />
             {/* [修改] 创建用户的模态框 */}
             <Modal title="创建新用户" open={isCreateModalVisible} onOk={handleCreateUser} onCancel={handleCreateCancel} confirmLoading={usersLoading}>
                 <Form form={form} layout="vertical" name="create_user_form">
-                    <Form.Item name="name" label="姓名" rules={[{ required: true, message: "请输入姓名!" }]}>
+                    <Form.Item name="phone" label="手机号" rules={[{ required: true, message: "请输入手机号!" }]}>
                         <Input />
-                    </Form.Item>
-                    <Form.Item name="email" label="邮箱" rules={[{ required: true, message: "请输入邮箱!", type: "email" }]}>
-                        <Input autoComplete="username" />
                     </Form.Item>
                     <Form.Item name="password" label="密码" rules={[{ required: true, message: "请输入密码!" }]}>
                         <Input.Password autoComplete="new-password" />
                     </Form.Item>
                 </Form>
             </Modal>
+            {/* [修改] 编辑用户的模态框 */}
             <Modal title="编辑用户" open={isEditModalVisible} onOk={handleUpdate} onCancel={handleEditCancel} confirmLoading={usersLoading}>
                 <Form form={form} layout="vertical" name="edit_user_form">
-                    <Form.Item name="name" label="姓名" rules={[{ required: true, message: "请输入姓名!" }]}>
+                    <Form.Item name="phone" label="手机号" rules={[{ required: true, message: "请输入手机号!" }]}>
                         <Input />
                     </Form.Item>
                 </Form>

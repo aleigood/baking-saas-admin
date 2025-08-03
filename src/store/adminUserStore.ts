@@ -1,29 +1,27 @@
 /**
  * 文件路径: src/store/adminUserStore.ts
- * 文件描述: [修改] 更新了用户创建逻辑，以支持创建独立用户。
+ * 文件描述: [修改] 新增 allUsers 状态和 fetchAllUsers 方法，以支持在其他页面获取完整的用户列表。
  */
 import { create } from "zustand";
 import apiClient from "@/services/api";
-// [修改] 导入新类型
-import { AdminUser, PaginatedResponse, CreateUserData, UpdateUserData, CreateOwnerData } from "@/types";
+import { AdminUser, PaginatedResponse, CreateUserData, UpdateUserData } from "@/types";
 
 interface AdminUserStore {
     users: AdminUser[];
+    allUsers: AdminUser[]; // [新增] 用于存储所有用户列表，供下拉选择使用
     loading: boolean;
     total: number;
     page: number;
     pageSize: number;
     fetchUsers: (params: { page: number; pageSize: number; search?: string; sortBy?: string }) => Promise<void>;
-    // [新增] 创建独立用户的方法
+    fetchAllUsers: () => Promise<void>; // [新增] 获取所有用户的方法
     createUser: (data: CreateUserData) => Promise<void>;
-    // [废弃] 此方法已不再使用
-    createOwner: (data: CreateOwnerData) => Promise<void>;
     updateUser: (id: string, data: UpdateUserData) => Promise<void>;
-    updateUserStatus: (id: string, status: "ACTIVE" | "INACTIVE") => Promise<void>;
 }
 
 export const useAdminUserStore = create<AdminUserStore>((set, get) => ({
     users: [],
+    allUsers: [], // [新增] 初始化状态
     loading: false,
     total: 0,
     page: 1,
@@ -37,9 +35,9 @@ export const useAdminUserStore = create<AdminUserStore>((set, get) => ({
             });
             set({
                 users: response.data.data,
-                total: response.data.total,
-                page: response.data.page,
-                pageSize: response.data.limit,
+                total: response.data.meta.total,
+                page: response.data.meta.page,
+                pageSize: response.data.meta.limit,
                 loading: false,
             });
         } catch (error) {
@@ -47,23 +45,29 @@ export const useAdminUserStore = create<AdminUserStore>((set, get) => ({
             set({ loading: false });
         }
     },
-    // [新增] 创建独立用户的实现
+    // [新增] 实现获取所有用户的方法
+    fetchAllUsers: async () => {
+        set({ loading: true });
+        try {
+            // 请求一个非常大的数量来模拟获取所有用户
+            const response = await apiClient.get<PaginatedResponse<AdminUser>>("/super-admin/users", {
+                params: { page: 1, limit: 9999 },
+            });
+            set({
+                allUsers: response.data.data,
+                loading: false,
+            });
+        } catch (error) {
+            console.error("Failed to fetch all users:", error);
+            set({ loading: false });
+        }
+    },
     createUser: async (data: CreateUserData) => {
         try {
             await apiClient.post("/super-admin/users", data);
-            // 创建成功后刷新用户列表
             await get().fetchUsers({ page: get().page, pageSize: get().pageSize });
         } catch (error) {
             console.error("Failed to create user:", error);
-            throw error;
-        }
-    },
-    createOwner: async (data: CreateOwnerData) => {
-        try {
-            await apiClient.post("/super-admin/users/owner", data);
-            await get().fetchUsers({ page: get().page, pageSize: get().pageSize });
-        } catch (error) {
-            console.error("Failed to create owner:", error);
             throw error;
         }
     },
@@ -73,15 +77,6 @@ export const useAdminUserStore = create<AdminUserStore>((set, get) => ({
             await get().fetchUsers({ page: get().page, pageSize: get().pageSize });
         } catch (error) {
             console.error(`Failed to update user ${id}:`, error);
-            throw error;
-        }
-    },
-    updateUserStatus: async (id, status) => {
-        try {
-            await apiClient.patch(`/super-admin/users/${id}/status`, { status });
-            await get().fetchUsers({ page: get().page, pageSize: get().pageSize });
-        } catch (error) {
-            console.error(`Failed to update user status for ${id}:`, error);
             throw error;
         }
     },

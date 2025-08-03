@@ -28,8 +28,9 @@ const App: React.FC = () => {
         }
     };
 
-    // 根据认证状态和用户角色来决定显示哪个页面
-    if (token && user?.systemRole === "SUPER_ADMIN") {
+    // [修复] 根据认证状态和用户角色来决定显示哪个页面
+    // 将 user?.systemRole 修改为 user?.role 以匹配后端返回的数据结构
+    if (token && user?.role === "SUPER_ADMIN") {
         return <MainLayout>{renderActivePage()}</MainLayout>;
     }
 
