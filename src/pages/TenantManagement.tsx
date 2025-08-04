@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Typography, Button, Table, Space, Modal, Form, Input, message, Popconfirm, Select } from "antd";
-// [修改] 移除 RotateCcw 图标，因为它对应的“恢复”功能已不存在
-import { Plus, Edit, Trash2 } from "lucide-react";
+import { Typography, Button, Table, Space, Modal, Form, Input, message, Select, Switch } from "antd";
+import { Plus, Edit } from "lucide-react";
 import { useTenantStore } from "@/store/tenantStore";
 import { useAdminUserStore } from "@/store/adminUserStore";
 import { Tenant, AdminUser } from "@/types";
@@ -12,8 +11,7 @@ const { Title } = Typography;
 const { Option } = Select;
 
 const TenantManagementPage: React.FC = () => {
-    // [修改] 替换 deactivateTenant 和 reactivateTenant 为 deleteTenant
-    const { tenants, loading, fetchTenants, createTenant, updateTenant, deleteTenant, total } = useTenantStore();
+    const { tenants, loading, fetchTenants, createTenant, updateTenant, updateTenantStatus, total } = useTenantStore();
     const { users, fetchUsers } = useAdminUserStore();
 
     const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
@@ -24,13 +22,10 @@ const TenantManagementPage: React.FC = () => {
 
     const { searchTerm, setSearchTerm, tableProps } = usePaginatedTable<Tenant>(fetchTenants, loading, total);
 
-    // [修改] 获取所有用户作为潜在的老板人选
     const potentialOwners = users;
 
-    // [新增] 当创建模态框打开时，获取所有用户
     useEffect(() => {
         if (isCreateModalVisible) {
-            // [修改] 获取所有用户以填充下拉列表
             fetchUsers({ page: 1, pageSize: 1000 });
         }
     }, [isCreateModalVisible, fetchUsers]);
@@ -47,14 +42,12 @@ const TenantManagementPage: React.FC = () => {
     const handleCreate = async () => {
         try {
             const values = await form.validateFields();
-            // [修改] 调用新的 createTenant 方法，传入 name 和 ownerId
             await createTenant({ name: values.name, ownerId: values.ownerId });
             message.success("店铺创建成功");
             setIsCreateModalVisible(false);
         } catch (error: any) {
             const errorMessage = error.response?.data?.message || "店铺创建失败";
             message.error(errorMessage);
-            console.error("Failed to create tenant:", error);
         }
     };
 
@@ -81,11 +74,11 @@ const TenantManagementPage: React.FC = () => {
         }
     };
 
-    // --- [修改] 删除店铺逻辑 ---
-    const handleDelete = async (tenantId: string) => {
+    const handleStatusChange = async (tenantId: string, checked: boolean) => {
+        const newStatus = checked ? "ACTIVE" : "INACTIVE";
         try {
-            await deleteTenant(tenantId);
-            message.success("店铺已删除");
+            await updateTenantStatus(tenantId, newStatus);
+            message.success(`店铺状态已更新为 ${newStatus === "ACTIVE" ? "正常" : "已停用"}`);
         } catch (error) {
             message.error("操作失败");
         }
@@ -98,14 +91,26 @@ const TenantManagementPage: React.FC = () => {
             key: "name",
             sorter: true,
         },
-        // [修改] 显示老板手机号的列
         {
             title: "老板",
             dataIndex: "ownerName",
             key: "owner",
             render: (ownerName: string | null) => (ownerName ? ownerName : "未指定"),
         },
-        // [修改] 移除状态列，因为后端模型已无此字段
+        {
+            title: "状态",
+            dataIndex: "status",
+            key: "status",
+            // 使用 Switch 组件来切换店铺状态
+            render: (status: "ACTIVE" | "INACTIVE", record: Tenant) => (
+                <Switch
+                    checked={status === "ACTIVE"}
+                    onChange={(checked) => handleStatusChange(record.id, checked)}
+                    checkedChildren="正常"
+                    unCheckedChildren="停用"
+                />
+            ),
+        },
         {
             title: "创建时间",
             dataIndex: "createdAt",
@@ -121,12 +126,6 @@ const TenantManagementPage: React.FC = () => {
                     <Button icon={<Edit size={14} />} onClick={() => showEditModal(record)}>
                         编辑
                     </Button>
-                    {/* [修改] 将“停用”改为“删除”，并移除恢复功能 */}
-                    <Popconfirm title="确定要永久删除此店铺吗？此操作不可恢复。" onConfirm={() => handleDelete(record.id)} okText="确定删除" cancelText="取消">
-                        <Button icon={<Trash2 size={14} />} danger>
-                            删除
-                        </Button>
-                    </Popconfirm>
                 </Space>
             ),
         },
@@ -146,7 +145,6 @@ const TenantManagementPage: React.FC = () => {
                 <Input.Search placeholder="按店铺名称搜索..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} style={{ width: 300 }} />
             </div>
             <Table columns={columns} dataSource={tenants} rowKey="id" {...tableProps} />
-            {/* [修改] 创建店铺的模态框 */}
             <Modal title="创建新店铺" open={isCreateModalVisible} onOk={handleCreate} onCancel={handleCreateCancel} confirmLoading={loading}>
                 <Form form={form} layout="vertical" name="create_tenant_form">
                     <Form.Item name="name" label="店铺名称" rules={[{ required: true, message: "请输入店铺名称!" }]}>
@@ -156,7 +154,6 @@ const TenantManagementPage: React.FC = () => {
                         <Select
                             placeholder="从用户列表中选择一位作为老板"
                             showSearch
-                            // [修改] 筛选逻辑基于用户手机号
                             filterOption={(input, option) => (option?.children?.toString() ?? "").toLowerCase().includes(input.toLowerCase())}
                         >
                             {potentialOwners.map((user: AdminUser) => (
@@ -168,7 +165,6 @@ const TenantManagementPage: React.FC = () => {
                     </Form.Item>
                 </Form>
             </Modal>
-            {/* 编辑模态框 */}
             <Modal title="编辑店铺" open={isEditModalVisible} onOk={handleUpdate} onCancel={handleEditCancel} confirmLoading={loading}>
                 <Form form={form} layout="vertical" name="edit_tenant_form">
                     <Form.Item name="name" label="店铺名称" rules={[{ required: true, message: "请输入店铺名称!" }]}>

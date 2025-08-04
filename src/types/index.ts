@@ -11,10 +11,9 @@
 export interface Tenant {
     id: string;
     name: string;
-    // [修改] 后端不再返回 status，移除该字段
+    status: "ACTIVE" | "INACTIVE";
     createdAt: string;
     updatedAt: string;
-    // [修改] 为店铺信息添加老板字段，使用手机号作为标识
     ownerName: string | null;
     ownerId: string | null;
 }
