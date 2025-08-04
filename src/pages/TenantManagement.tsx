@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Typography, Button, Table, Space, Modal, Form, Input, message, Select, Switch } from "antd";
-import { Plus, Edit } from "lucide-react";
+import { Typography, Button, Table, Space, Modal, Form, Input, message, Select, Switch, Popconfirm } from "antd";
+import { Plus, Edit, Trash2 } from "lucide-react";
 import { useTenantStore } from "@/store/tenantStore";
 import { useAdminUserStore } from "@/store/adminUserStore";
 import { Tenant, AdminUser } from "@/types";
@@ -11,7 +11,7 @@ const { Title } = Typography;
 const { Option } = Select;
 
 const TenantManagementPage: React.FC = () => {
-    const { tenants, loading, fetchTenants, createTenant, updateTenant, updateTenantStatus, total } = useTenantStore();
+    const { tenants, loading, fetchTenants, createTenant, updateTenant, updateTenantStatus, deleteTenant, total } = useTenantStore();
     const { users, fetchUsers } = useAdminUserStore();
 
     const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
@@ -84,6 +84,15 @@ const TenantManagementPage: React.FC = () => {
         }
     };
 
+    const handleDelete = async (tenantId: string) => {
+        try {
+            await deleteTenant(tenantId);
+            message.success("店铺已永久删除");
+        } catch (error) {
+            message.error("删除失败");
+        }
+    };
+
     const columns: TableProps<Tenant>["columns"] = [
         {
             title: "店铺名称",
@@ -101,7 +110,6 @@ const TenantManagementPage: React.FC = () => {
             title: "状态",
             dataIndex: "status",
             key: "status",
-            // 使用 Switch 组件来切换店铺状态
             render: (status: "ACTIVE" | "INACTIVE", record: Tenant) => (
                 <Switch
                     checked={status === "ACTIVE"}
@@ -126,6 +134,18 @@ const TenantManagementPage: React.FC = () => {
                     <Button icon={<Edit size={14} />} onClick={() => showEditModal(record)}>
                         编辑
                     </Button>
+                    {/* 添加删除按钮和二次确认 */}
+                    <Popconfirm
+                        title="确定要永久删除此店铺吗？"
+                        description="此操作不可恢复，将删除所有相关数据。"
+                        onConfirm={() => handleDelete(record.id)}
+                        okText="确定删除"
+                        cancelText="取消"
+                    >
+                        <Button icon={<Trash2 size={14} />} danger>
+                            删除
+                        </Button>
+                    </Popconfirm>
                 </Space>
             ),
         },
@@ -142,7 +162,12 @@ const TenantManagementPage: React.FC = () => {
                 </Button>
             </div>
             <div className="mb-4">
-                <Input.Search placeholder="按店铺名称搜索..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} style={{ width: 300 }} />
+                <Input.Search
+                    placeholder="按店铺名称或老板手机号搜索..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    style={{ width: 300 }}
+                />
             </div>
             <Table columns={columns} dataSource={tenants} rowKey="id" {...tableProps} />
             <Modal title="创建新店铺" open={isCreateModalVisible} onOk={handleCreate} onCancel={handleCreateCancel} confirmLoading={loading}>

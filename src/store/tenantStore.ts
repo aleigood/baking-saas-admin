@@ -12,6 +12,7 @@ interface TenantState {
     createTenant: (data: CreateTenantData) => Promise<void>;
     updateTenant: (id: string, data: { name?: string }) => Promise<void>;
     updateTenantStatus: (id: string, status: "ACTIVE" | "INACTIVE") => Promise<void>;
+    deleteTenant: (id: string) => Promise<void>;
 }
 
 export const useTenantStore = create<TenantState>((set, get) => ({
@@ -68,6 +69,15 @@ export const useTenantStore = create<TenantState>((set, get) => ({
             await get().fetchTenants({ page: get().page, pageSize: get().pageSize });
         } catch (error) {
             console.error(`Failed to update tenant status for ${id}:`, error);
+            throw error;
+        }
+    },
+    deleteTenant: async (id: string) => {
+        try {
+            await apiClient.delete(`/super-admin/tenants/${id}`);
+            await get().fetchTenants({ page: get().page, pageSize: get().pageSize });
+        } catch (error) {
+            console.error(`Failed to delete tenant ${id}:`, error);
             throw error;
         }
     },
