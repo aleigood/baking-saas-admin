@@ -16,6 +16,7 @@ export interface Tenant {
     updatedAt: string;
     ownerName: string | null;
     ownerId: string | null;
+    recipeCount: number;
 }
 
 // 用户所属店铺信息接口 (用于用户详情展示)

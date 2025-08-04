@@ -107,6 +107,13 @@ const TenantManagementPage: React.FC = () => {
             render: (ownerName: string | null) => (ownerName ? ownerName : "未指定"),
         },
         {
+            title: "配方总数",
+            dataIndex: "recipeCount",
+            key: "recipeCount",
+            sorter: true,
+            align: "center",
+        },
+        {
             title: "状态",
             dataIndex: "status",
             key: "status",
