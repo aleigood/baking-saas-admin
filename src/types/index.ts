@@ -31,24 +31,23 @@ export interface UserTenantInfo {
 // 管理后台用户接口
 export interface AdminUser {
     id: string;
-    phone: string; // [修改] 使用 phone 替代 name 和 email
-    role: "SUPER_ADMIN" | "OWNER" | "ADMIN" | "MEMBER" | null; // [修改] role 来自后端 User.role 和 TenantUser.role
+    name: string | null; // [新增] 用户姓名
+    phone: string;
+    role: "SUPER_ADMIN" | "OWNER" | "ADMIN" | "MEMBER" | null;
     status: "ACTIVE" | "INACTIVE" | "PENDING";
     createdAt: string;
-    tenants: UserTenantInfo[]; // 该用户所属的店铺列表
+    tenants: UserTenantInfo[];
 }
 
 // 仪表盘统计数据接口
 export interface DashboardStats {
     totalTenants: number;
     totalUsers: number;
-    // [新增] 新增配方和生产任务总数统计
     totalRecipes: number;
     totalTasks: number;
 }
 
 // 分页响应接口
-// [修改] 更新分页响应结构以匹配后端返回的 meta 对象
 export interface PaginatedResponse<T> {
     data: T[];
     meta: {
@@ -59,8 +58,9 @@ export interface PaginatedResponse<T> {
     };
 }
 
-// [新增] 创建独立用户时所需的数据类型
+// 创建独立用户时所需的数据类型
 export interface CreateUserData {
+    name: string;
     phone: string;
     password: string;
 }
@@ -73,15 +73,15 @@ export interface CreateOwnerData {
     tenantId: string;
 }
 
-// [新增] 创建店铺时所需的数据类型
+// 创建店铺时所需的数据类型
 export interface CreateTenantData {
     name: string;
     ownerId: string;
 }
 
-// [修改] 更新用户时所需的数据类型，以匹配后端接口
+// 更新用户时所需的数据类型
 export interface UpdateUserData {
-    phone?: string;
+    name?: string; // [修改] 允许更新姓名
     password?: string;
     status?: "ACTIVE" | "INACTIVE" | "PENDING";
 }
