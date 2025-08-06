@@ -41,13 +41,15 @@ interface DoughIngredientDto {
     waterContent?: number;
 }
 
+// [回滚] 移除 DoughDto
+
 // 创建配方的主DTO
 export interface CreateRecipeDto {
     name: string;
     type?: RecipeType;
     targetTemp?: number;
     lossRatio?: number;
-    ingredients: DoughIngredientDto[];
+    ingredients: DoughIngredientDto[]; // [回滚] 恢复顶层 ingredients 数组
     products?: ProductDto[];
     procedure?: string[];
 }

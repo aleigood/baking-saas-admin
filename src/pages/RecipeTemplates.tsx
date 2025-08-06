@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Typography, Button, message, Upload, Select, Form, Space, Checkbox, Tag } from "antd";
+import { Typography, Button, message, Upload, Select, Form, Space, Checkbox, Tag, Modal } from "antd"; // [修改] 导入 Modal
 import type { CheckboxChangeEvent } from "antd/es/checkbox";
 import { Download, Upload as UploadIcon, PlusCircle } from "lucide-react";
 import type { UploadProps } from "antd";
@@ -16,6 +16,7 @@ const RecipeTemplatesPage: React.FC = () => {
     const { loading, getTemplate, createRecipe } = useRecipeTemplateStore();
     const { allUsers, fetchAllUsers } = useAdminUserStore();
     const [form] = Form.useForm();
+    const [isImporting, setIsImporting] = useState(false);
 
     const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null);
     const [recipesToImport, setRecipesToImport] = useState<CreateRecipeDto[]>([]);
@@ -65,6 +66,9 @@ const RecipeTemplatesPage: React.FC = () => {
     };
 
     const handleImport = async () => {
+        const successfulImports: string[] = [];
+        const failedImports: { name: string; reason: string }[] = [];
+
         try {
             const values = await form.validateFields();
             const { tenantIds } = values;
@@ -74,28 +78,72 @@ const RecipeTemplatesPage: React.FC = () => {
                 return;
             }
 
-            const importPromises = tenantIds.flatMap((tenantId: string) => recipesToImport.map((recipe) => createRecipe(tenantId, recipe)));
+            setIsImporting(true);
 
-            await Promise.all(importPromises);
+            // [修改] 串行导入并记录成功和失败日志
+            for (const tenantId of tenantIds) {
+                const tenantInfo = selectedUser?.tenants.find((t) => t.tenant.id === tenantId);
+                const tenantName = tenantInfo?.tenant.name || tenantId;
 
-            message.success(`成功将 ${recipesToImport.length} 个配方导入到 ${tenantIds.length} 个店铺中！`);
+                for (const recipe of recipesToImport) {
+                    try {
+                        await createRecipe(tenantId, recipe);
+                        successfulImports.push(`配方 "${recipe.name}" 已成功导入到店铺 "${tenantName}"。`);
+                    } catch (err: any) {
+                        const reason = err.response?.data?.message || "未知错误";
+                        failedImports.push({
+                            name: `配方 "${recipe.name}" 导入到店铺 "${tenantName}" 失败`,
+                            reason: reason,
+                        });
+                    }
+                }
+            }
+
+            // [修改] 显示导入结果报告
+            Modal.info({
+                title: "导入完成",
+                content: (
+                    <div>
+                        {successfulImports.length > 0 && (
+                            <>
+                                <p>
+                                    <strong>成功:</strong>
+                                </p>
+                                <ul style={{ paddingLeft: 20, maxHeight: 200, overflowY: "auto" }}>
+                                    {successfulImports.map((log, i) => (
+                                        <li key={`succ-${i}`}>{log}</li>
+                                    ))}
+                                </ul>
+                            </>
+                        )}
+                        {failedImports.length > 0 && (
+                            <>
+                                <p style={{ marginTop: 10 }}>
+                                    <strong>失败:</strong>
+                                </p>
+                                <ul style={{ paddingLeft: 20, maxHeight: 200, overflowY: "auto" }}>
+                                    {failedImports.map((log, i) => (
+                                        <li key={`fail-${i}`}>
+                                            {log.name}: {log.reason}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </>
+                        )}
+                    </div>
+                ),
+                onOk() {},
+            });
 
             form.resetFields();
             setRecipesToImport([]);
             setSelectedUser(null);
             setSelectedTenantIds([]);
         } catch (err: any) {
-            const apiErrors = err.response?.data?.message;
-            let displayError = "导入失败，请检查文件格式或联系管理员。";
-
-            if (typeof apiErrors === "string") {
-                displayError = apiErrors;
-            } else if (Array.isArray(apiErrors)) {
-                displayError = apiErrors.join("; ");
-            }
-
-            message.error(displayError, 5);
-            console.error("Import error:", err);
+            // Handle form validation errors
+            console.error("Form validation error:", err);
+        } finally {
+            setIsImporting(false);
         }
     };
 
@@ -202,7 +250,7 @@ const RecipeTemplatesPage: React.FC = () => {
                     </Form.Item>
 
                     <Form.Item>
-                        <Button type="primary" htmlType="submit" loading={loading} icon={<PlusCircle size={16} />}>
+                        <Button type="primary" htmlType="submit" loading={isImporting || loading} icon={<PlusCircle size={16} />}>
                             开始导入
                         </Button>
                     </Form.Item>

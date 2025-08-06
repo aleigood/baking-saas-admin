@@ -13,10 +13,11 @@ interface RecipeTemplateState {
     createRecipe: (tenantId: string, recipeData: CreateRecipeDto) => Promise<void>;
 }
 
-export const useRecipeTemplateStore = create<RecipeTemplateState>((set) => ({
+export const useRecipeTemplateStore = create<RecipeTemplateState>(() => ({
     loading: false,
     // [修改] getTemplate 现在返回一个包含三个详细配方案例的数组，使用用户友好的百分比格式。
     getTemplate: async () => {
+        // [回滚] 恢复到原始的、符合您需求的 recipeExamples 结构
         const recipeExamples: CreateRecipeDto[] = [
             // 1. 预制面团 (PRE_DOUGH) 示例：烫种
             {
@@ -66,7 +67,6 @@ export const useRecipeTemplateStore = create<RecipeTemplateState>((set) => ({
                     {
                         name: "熊掌卡仕达",
                         weight: 50,
-                        // [修复] 将 `weight` 属性修正为 `weightInGrams` 以匹配类型定义
                         fillings: [{ name: "卡仕达酱", type: ProductIngredientType.FILLING, weightInGrams: 30 }],
                         mixIn: [{ name: "香草籽", type: ProductIngredientType.MIX_IN, ratio: 1 }],
                         procedure: ["烘烤：烤前刷过筛蛋液，一盘10个 上火210 下火180 烤10分钟"],
@@ -86,42 +86,14 @@ export const useRecipeTemplateStore = create<RecipeTemplateState>((set) => ({
         ];
         return Promise.resolve(recipeExamples);
     },
-    // [修改] 实现配方创建逻辑，并在发送前自动转换配方比例
+    // [修改] 实现配方创建逻辑，并移除 ratio / 100 的转换
     createRecipe: async (tenantId: string, recipeData: CreateRecipeDto) => {
-        set({ loading: true });
         try {
-            // 对配方数据进行深拷贝，以避免修改原始对象
-            const transformedRecipe = JSON.parse(JSON.stringify(recipeData));
-
-            // 将所有原料的百分比 ratio 转换为后端需要的小数
-            if (transformedRecipe.ingredients) {
-                transformedRecipe.ingredients.forEach((ing: { ratio?: number }) => {
-                    if (typeof ing.ratio === "number") {
-                        ing.ratio /= 100;
-                    }
-                });
-            }
-
-            // 将产品中 mixIn 原料的百分比 ratio 转换为小数
-            if (transformedRecipe.products) {
-                transformedRecipe.products.forEach((prod: { mixIn?: { ratio?: number }[] }) => {
-                    if (prod.mixIn) {
-                        prod.mixIn.forEach((mix: { ratio?: number }) => {
-                            if (typeof mix.ratio === "number") {
-                                mix.ratio /= 100;
-                            }
-                        });
-                    }
-                });
-            }
-
-            // 调用后端的单配方创建接口，发送转换后的数据
-            await apiClient.post(`/super-admin/tenants/${tenantId}/recipes`, transformedRecipe);
+            // [修改] 不再对 ratio 进行任何转换，直接将 recipeData 发送到后端
+            await apiClient.post(`/super-admin/tenants/${tenantId}/recipes`, recipeData);
         } catch (error) {
             console.error("Failed to create recipe:", error);
             throw error; // 向上抛出错误，以便UI层捕获
-        } finally {
-            set({ loading: false });
         }
     },
 }));
