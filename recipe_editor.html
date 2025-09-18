@@ -359,10 +359,10 @@
                     <div class="card">
                         <div class="card-title-wrapper"><span class="card-title">产品列表</span></div>
                         <div class="product-tabs">
-                            <div v-for="(product, index) in currentRecipe.products" :key="index" class="tab-item" :class="{ active: activeProductTab === index }" @click="activeProductTab = index">{{ product.name || `产品${index + 1}` }}</div>
+                            <div v-for="(product, index) in currentRecipe.products" :key="product.id" class="tab-item" :class="{ active: activeProductTab === index }" @click="activeProductTab = index">{{ product.name || `产品${index + 1}` }}</div>
                             <div class="tab-item add-tab" @click="addProduct">+</div>
                         </div>
-                        <div v-for="(product, prodIndex) in currentRecipe.products" v-show="activeProductTab === prodIndex" :key="prodIndex">
+                        <div v-for="(product, prodIndex) in currentRecipe.products" v-show="activeProductTab === prodIndex" :key="product.id">
                             <div class="form-item"><label class="form-item-label">产品名称</label><input class="input-field" v-model="product.name" :placeholder="`产品${prodIndex + 1}`"></div>
                             <div class="form-item"><label class="form-item-label">基础面团克重 (g)</label><input class="input-field" type="number" v-model.number="product.baseDoughWeight" placeholder="例如: 100"></div>
                             <div class="sub-group">
@@ -461,9 +461,8 @@
 
         createApp({
             setup() {
-                // 为配方和原料分别设置独立的ID计数器
                 let nextRecipeId = 1;
-                let nextIngredientId = 1;
+                let nextIngredientId = 1000; // Use a high starting number to avoid any possible collision with recipe IDs
 
                 const recipes = ref([]);
                 const currentRecipeId = ref(null);
@@ -500,24 +499,20 @@
                     return availablePreDoughs.value.filter(d => !existingDoughNames.has(d.name));
                 });
 
-
-                watch(() => currentRecipe.value?.type, (newType, oldType) => {
-                    if (newType && oldType && newType !== oldType) {
-                        const oldName = currentRecipe.value.name;
-                        const newForm = getNewForm(newType);
-                        newForm.name = oldName;
-                        newForm.id = currentRecipe.value.id; 
-                        recipes.value[currentRecipeIndex.value] = newForm;
-                        activeCategory.value = newType;
+                // [最终修复] 优化 watcher，只在 currentRecipeId 变化时执行副作用，且只执行必要的操作
+                watch(currentRecipeId, (newId) => {
+                    if (!newId) return;
+                    const recipe = recipes.value.find(r => r.id === newId);
+                    if (recipe && recipe.type === 'MAIN') {
+                        activeProductTab.value = 0;
                     }
-                    if (newType === 'MAIN') activeProductTab.value = 0;
                 });
                 
                 function getNewForm(type) {
                     const id = nextRecipeId++;
-                    const commonIngredient = { id: nextIngredientId++, name: '', ratio: null, isFlour: false }; // 原料也获得唯一ID
+                    const commonIngredient = { id: nextIngredientId++, name: '', ratio: null, isFlour: false };
                     if (type === 'MAIN') {
-                        return { id, name: '', type: 'MAIN', notes: '', targetTemp: null, doughs: [{ id: nextIngredientId++, name: '主面团', type: 'MAIN_DOUGH', lossRatio: null, ingredients: [JSON.parse(JSON.stringify(commonIngredient))], procedure: [''] }], products: [{ name: '产品1', baseDoughWeight: 100, mixIns: [], fillings: [], toppings: [], procedure: [''] }] };
+                        return { id, name: '', type: 'MAIN', notes: '', targetTemp: null, doughs: [{ id: nextIngredientId++, name: '主面团', type: 'MAIN_DOUGH', lossRatio: null, ingredients: [JSON.parse(JSON.stringify(commonIngredient))], procedure: [''] }], products: [{ id: nextRecipeId++, name: '产品1', baseDoughWeight: 100, mixIns: [], fillings: [], toppings: [], procedure: [''] }] };
                     }
                     return { id, name: '', type: type, notes: '', ingredients: [JSON.parse(JSON.stringify(commonIngredient))], procedure: [''] };
                 }
@@ -530,7 +525,6 @@
 
                 const selectRecipe = (id) => {
                     currentRecipeId.value = id;
-                    if(currentRecipe.value?.type === 'MAIN') activeProductTab.value = 0;
                 };
 
                 const deleteRecipe = (id) => {
@@ -545,8 +539,9 @@
                 const addPreDoughReference = (dough) => {
                     currentRecipe.value.doughs.push({
                         ...JSON.parse(JSON.stringify(dough)),
+                        id: nextRecipeId++, 
                         type: 'PRE_DOUGH',
-                        flourRatioInMainDough: 20 // Default value
+                        flourRatioInMainDough: 20
                     });
                     isAddPreDoughModalVisible.value = false;
                 };
@@ -559,7 +554,6 @@
                     }
                 };
 
-                // 所有手动添加原料的地方，都确保新原料有唯一的ID
                 const addMainDoughIngredient = () => mainDough.value.ingredients.push({ id: nextIngredientId++, name: '', ratio: null, isFlour: false });
                 const removeMainDoughIngredient = (index) => mainDough.value.ingredients.splice(index, 1);
                 const addMainDoughProcedureStep = () => mainDough.value.procedure.push('');
@@ -602,7 +596,6 @@
                             recipes.value.push(...normalizedRecipes);
                             
                             if (currentRecipeId.value === null && recipes.value.length > 0) {
-                                // 使用 nextTick 确保在DOM更新后才执行选中操作，解决初始化时机问题
                                 nextTick(() => {
                                     currentRecipeId.value = recipes.value[0].id;
                                     activeCategory.value = recipes.value[0].type;
@@ -619,16 +612,23 @@
                     reader.readAsText(file);
                 };
                 
+                // [最终修复] 重构 normalizeRecipe 函数，不再使用 getNewForm 和 JSON.parse
                 const normalizeRecipe = (recipe, preDoughMap) => {
-                    const newRecipe = JSON.parse(JSON.stringify(getNewForm(recipe.type)));
-                    Object.assign(newRecipe, { 
-                        name: recipe.name, 
-                        type: recipe.type, 
-                        notes: recipe.notes, 
-                        targetTemp: recipe.targetTemp 
-                    });
+                    // 为所有类型的配方定义一个基础结构，确保对象形状统一
+                    const baseRecipe = {
+                        id: nextRecipeId++,
+                        name: recipe.name,
+                        type: recipe.type,
+                        notes: recipe.notes || '',
+                        // 统一所有对象都具有这些属性，即使是空的
+                        targetTemp: null,
+                        doughs: [],
+                        products: [],
+                        ingredients: [],
+                        procedure: []
+                    };
 
-                    if (newRecipe.type === 'MAIN') {
+                    if (recipe.type === 'MAIN') {
                         const preDoughs = [];
                         const mainDoughIngredients = [];
                         
@@ -650,35 +650,36 @@
                         });
                         
                         const mainDoughData = {
-                            id: nextIngredientId++, // 主面团本身也需要一个唯一ID
+                            id: nextIngredientId++,
                             name: '主面团',
                             type: 'MAIN_DOUGH',
                             lossRatio: toPercentage(recipe.lossRatio),
                             procedure: (recipe.procedure && recipe.procedure.length > 0) ? recipe.procedure : [''],
                             ingredients: mainDoughIngredients.length > 0 ? mainDoughIngredients : [{ id: nextIngredientId++, name: '', ratio: null, isFlour: false }]
                         };
-                        newRecipe.doughs = [mainDoughData, ...preDoughs];
                         
-                        newRecipe.products = (recipe.products || []).map(p => ({
-                            id: nextRecipeId++, // 产品也需要唯一ID
+                        baseRecipe.targetTemp = recipe.targetTemp || null;
+                        baseRecipe.doughs = [mainDoughData, ...preDoughs];
+                        baseRecipe.products = (recipe.products && recipe.products.length > 0) ? recipe.products.map(p => ({
+                            id: nextRecipeId++,
                             name: p.name, baseDoughWeight: p.weight,
                             mixIns: (p.mixIn || []).map(i => ({ id: nextIngredientId++, name: i.name, ratio: toPercentage(i.ratio), weightInGrams: null })),
                             fillings: (p.fillings || []).map(i => ({ id: nextIngredientId++, name: i.name, weightInGrams: i.weightInGrams, ratio: null })),
                             toppings: (p.toppings || []).map(i => ({ id: nextIngredientId++, name: i.name, weightInGrams: i.weightInGrams, ratio: null })),
-                            procedure: (p.procedure && p.procedure.length > 0) ? p.procedure : [''],
-                        }));
-                        if (newRecipe.products.length === 0) {
-                            const baseFormForProduct = getNewForm('MAIN');
-                            newRecipe.products.push(JSON.parse(JSON.stringify(baseFormForProduct.products[0])));
-                        }
+                            procedure: (p.procedure && p.procedure.length > 0) ? p.procedure : ['']
+                        })) : [{ id: nextRecipeId++, name: '产品1', baseDoughWeight: 100, mixIns: [], fillings: [], toppings: [], procedure: [''] }];
 
-                    } else { 
-                        newRecipe.ingredients = (recipe.ingredients || []).map(ing => ({ id: nextIngredientId++, name: ing.name, ratio: toPercentage(ing.ratio), isFlour: !!ing.isFlour }));
-                        if (newRecipe.ingredients.length === 0) newRecipe.ingredients.push({ id: nextIngredientId++, name: '', ratio: null, isFlour: false });
-                        newRecipe.procedure = (recipe.procedure && recipe.procedure.length > 0) ? recipe.procedure : [''];
+                    } else { // PRE_DOUGH or EXTRA
+                        baseRecipe.ingredients = (recipe.ingredients && recipe.ingredients.length > 0) ? recipe.ingredients.map(ing => ({ 
+                            id: nextIngredientId++, 
+                            name: ing.name, 
+                            ratio: toPercentage(ing.ratio), 
+                            isFlour: !!ing.isFlour 
+                        })) : [{ id: nextIngredientId++, name: '', ratio: null, isFlour: false }];
+                        baseRecipe.procedure = (recipe.procedure && recipe.procedure.length > 0) ? recipe.procedure : [''];
                     }
                     
-                    return newRecipe;
+                    return baseRecipe;
                 };
 
                 const exportAllJson = () => {
