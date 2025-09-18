@@ -574,7 +574,8 @@
                 const addProductProcedureStep = (prodIndex) => currentRecipe.value.products[prodIndex].procedure.push('');
                 const removeProductProcedureStep = (prodIndex, stepIndex) => currentRecipe.value.products[prodIndex].procedure.splice(stepIndex, 1);
 
-                const toDecimal = (percentage) => (percentage === null || percentage === undefined) ? 0 : parseFloat(percentage) / 100;
+                // [新增修改] 采用 toPrecision(12) 来进行高精度修正，消除浮点数二进制表示误差，同时与 toPercentage 逻辑保持对称。
+                const toDecimal = (percentage) => (percentage === null || percentage === undefined) ? 0 : parseFloat((parseFloat(percentage) / 100).toPrecision(12));
                 const toPercentage = (decimal) => (decimal === null || decimal === undefined) ? null : parseFloat((decimal * 100).toPrecision(12));
                 
                 const triggerImport = () => fileInput.value.click();
@@ -687,29 +688,43 @@
                     try {
                         const processedRecipes = recipes.value.map(recipe => {
                             if (!recipe.name || !recipe.name.trim()) throw new Error(`列表中有未命名的配方，请检查后再导出。`);
+                            
+                            const formatIngredient = (ing) => {
+                                const result = {
+                                    name: ing.name,
+                                    ratio: toDecimal(ing.ratio),
+                                };
+                                if (ing.isFlour) {
+                                    result.isFlour = true;
+                                }
+                                return result;
+                            };
+
                             if (recipe.type === 'MAIN') {
                                 const md = recipe.doughs.find(d => d.type === 'MAIN_DOUGH');
                                 const finalIngredients = [
                                     ...recipe.doughs.filter(d => d.type === 'PRE_DOUGH').map(pd => ({ name: pd.name, flourRatio: toDecimal(pd.flourRatioInMainDough) })),
-                                    ...md.ingredients.filter(ing => ing.name.trim() && ing.ratio !== null).map(ing => ({ name: ing.name, ratio: toDecimal(ing.ratio), isFlour: !!ing.isFlour }))
+                                    ...md.ingredients.filter(ing => ing.name.trim() && ing.ratio !== null).map(formatIngredient)
                                 ];
                                 return {
-                                    name: recipe.name, type: recipe.type, notes: recipe.notes, targetTemp: recipe.targetTemp,
+                                    name: recipe.name, type: recipe.type,
+                                    targetTemp: recipe.targetTemp,
                                     lossRatio: toDecimal(md.lossRatio),
                                     procedure: md.procedure.filter(p => p.trim()),
                                     ingredients: finalIngredients,
                                     products: recipe.products.map(p => ({
                                         name: p.name, weight: p.baseDoughWeight, procedure: p.procedure.filter(step => step.trim()),
-                                        mixIn: p.mixIns.filter(i => i.name.trim() && i.ratio !== null).map(i => ({ name: i.name, type: 'MIX_IN', ratio: toDecimal(i.ratio) })),
-                                        fillings: p.fillings.filter(i => i.name.trim() && i.weightInGrams !== null).map(i => ({ name: i.name, type: 'FILLING', weightInGrams: i.weightInGrams })),
-                                        toppings: p.toppings.filter(i => i.name.trim() && i.weightInGrams !== null).map(i => ({ name: i.name, type: 'TOPPING', weightInGrams: i.weightInGrams })),
+                                        mixIn: p.mixIns.filter(i => i.name.trim() && i.ratio !== null).map(i => ({ name: i.name, ratio: toDecimal(i.ratio) })),
+                                        fillings: p.fillings.filter(i => i.name.trim() && i.weightInGrams !== null).map(i => ({ name: i.name, weightInGrams: i.weightInGrams })),
+                                        toppings: p.toppings.filter(i => i.name.trim() && i.weightInGrams !== null).map(i => ({ name: i.name, weightInGrams: i.weightInGrams })),
                                     }))
                                 };
                             } else {
                                 return {
-                                    name: recipe.name, type: recipe.type, notes: recipe.notes,
-                                    ingredients: recipe.ingredients.filter(ing => ing.name.trim() && ing.ratio !== null).map(ing => ({ name: ing.name, ratio: toDecimal(ing.ratio), isFlour: !!ing.isFlour })),
-                                    procedure: recipe.procedure.filter(p => p.trim()), products: []
+                                    name: recipe.name, type: recipe.type,
+                                    ingredients: recipe.ingredients.filter(ing => ing.name.trim() && ing.ratio !== null).map(formatIngredient),
+                                    procedure: recipe.procedure.filter(p => p.trim()), 
+                                    products: []
                                 };
                             }
                         });
