@@ -250,9 +250,39 @@
         .tab-item { padding: 10px 15px; cursor: pointer; color: var(--text-secondary); border-bottom: 3px solid transparent; transition: color 0.3s, border-color 0.3s; }
         .tab-item.active { color: var(--primary-color); border-bottom-color: var(--primary-color); font-weight: 600; }
         .add-tab { font-weight: bold; color: var(--primary-color); }
-        .main-content { flex-grow: 1; overflow-y: auto; padding: 20px; }
+        .main-content {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 20px;
+            position: relative;
+        }
         .editor-placeholder { display: flex; justify-content: center; align-items: center; height: 100%; text-align: center; color: var(--text-secondary); font-size: 18px; }
         .btn-delete-dough { position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 24px; color: var(--danger-color); cursor: pointer; }
+
+        /* [新增] 原料输入建议框样式 */
+        .suggestion-box {
+            position: absolute;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            z-index: 100;
+            max-height: 200px;
+            overflow-y: auto;
+            list-style: none;
+            margin: 0;
+            padding: 5px;
+            box-sizing: border-box;
+        }
+        .suggestion-item {
+            padding: 8px 12px;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 8px;
+        }
+        .suggestion-item:hover {
+            background-color: var(--sidebar-bg);
+        }
 
     </style>
 </head>
@@ -300,7 +330,7 @@
             </footer>
         </aside>
 
-        <main class="main-content">
+        <main class="main-content" ref="mainContentRef">
             <div v-if="currentRecipe" class="editor-content">
                  <div class="card">
                     <div class="form-item">
@@ -341,7 +371,10 @@
                             <span class="col-action"></span>
                         </div>
                         <div v-for="(ing, index) in mainDough.ingredients" :key="ing.id" class="ingredient-row">
-                            <input class="input-field" v-model="ing.name" placeholder="输入原料名称">
+                            <input class="input-field" v-model="ing.name" placeholder="输入原料名称"
+                                @focus="handleIngredientInput(ing, $event)"
+                                @input="handleIngredientInput(ing, $event)"
+                                @blur="handleIngredientBlur(ing)">
                             <div class="flour-checkbox"><input type="checkbox" v-model="ing.isFlour"></div>
                             <input class="input-field ratio-input" type="number" v-model.number="ing.ratio" placeholder="%">
                             <button class="btn btn-remove" @click="removeMainDoughIngredient(index)">-</button>
@@ -369,7 +402,10 @@
                                 <h4 class="sub-group-title">辅料 (Mix-ins) - 占基础面团百分比</h4>
                                 <div v-for="(ing, ingIndex) in product.mixIns" :key="ing.id" class="ingredient-row">
                                     <div style="display: flex; align-items: center; flex-grow: 1;">
-                                        <input class="input-field" v-model="ing.name" placeholder="输入辅料名称">
+                                        <input class="input-field" v-model="ing.name" placeholder="输入辅料名称"
+                                            @focus="handleIngredientInput(ing, $event)"
+                                            @input="handleIngredientInput(ing, $event)"
+                                            @blur="handleIngredientBlur(ing)">
                                         <span v-if="isSelfMade(ing.name)" class="self-made-tag">自制</span>
                                     </div>
                                     <input class="input-field ratio-input" type="number" v-model.number="ing.ratio" placeholder="%"><button class="btn btn-remove" @click="removeSubIngredient(prodIndex, 'mixIns', ingIndex)">-</button>
@@ -417,7 +453,10 @@
                             <span class="col-action"></span>
                         </div>
                         <div v-for="(ing, index) in currentRecipe.ingredients" :key="ing.id" class="ingredient-row">
-                            <input class="input-field" v-model="ing.name" placeholder="输入原料名称">
+                            <input class="input-field" v-model="ing.name" placeholder="输入原料名称"
+                                @focus="handleIngredientInput(ing, $event)"
+                                @input="handleIngredientInput(ing, $event)"
+                                @blur="handleIngredientBlur(ing)">
                             <div class="flour-checkbox"><input type="checkbox" v-model="ing.isFlour"></div>
                             <input class="input-field ratio-input" type="number" v-model.number="ing.ratio" placeholder="%">
                             <button class="btn btn-remove" @click="removeOtherIngredient(index)">-</button>
@@ -437,6 +476,13 @@
             <div v-else class="editor-placeholder">
                 <p>← 从左侧选择一个配方进行编辑<br>或新增一个配方</p>
             </div>
+            
+            <ul v-if="suggestionState.visible" class="suggestion-box" :style="suggestionBoxStyle">
+                <li v-for="sugg in suggestionState.suggestions" :key="sugg.name" class="suggestion-item" @mousedown="selectSuggestion(sugg)">
+                    {{ sugg.name }}
+                </li>
+            </ul>
+
         </main>
         
         <div v-if="isAddPreDoughModalVisible" class="modal-overlay" @click="isAddPreDoughModalVisible = false">
@@ -462,7 +508,7 @@
         createApp({
             setup() {
                 let nextRecipeId = 1;
-                let nextIngredientId = 1000; // Use a high starting number to avoid any possible collision with recipe IDs
+                let nextIngredientId = 1000;
 
                 const recipes = ref([]);
                 const currentRecipeId = ref(null);
@@ -470,6 +516,68 @@
                 const fileInput = ref(null);
                 const isAddPreDoughModalVisible = ref(false);
                 const activeCategory = ref('MAIN');
+                const mainContentRef = ref(null);
+
+                // [修改] 更新预定义的常用原料列表
+                const predefinedIngredients = ref([
+                    { name: '面包粉', isFlour: true, waterContent: 0 },
+                    { name: '高筋粉', isFlour: true, waterContent: 0 },
+                    { name: '中筋粉', isFlour: true, waterContent: 0 },
+                    { name: '全麦粉', isFlour: true, waterContent: 0 },
+                    { name: '裸麦粉', isFlour: true, waterContent: 0 },
+                    { name: '黑麦粉', isFlour: true, waterContent: 0 },
+                    { name: 'T45', isFlour: true, waterContent: 0 },
+                    { name: 'T55', isFlour: true, waterContent: 0 },
+                    { name: 'T65', isFlour: true, waterContent: 0 },
+                    { name: 'T80', isFlour: true, waterContent: 0 },
+                    { name: 'T110', isFlour: true, waterContent: 0 },
+                    { name: 'T150', isFlour: true, waterContent: 0 },
+                    { name: 'T170', isFlour: true, waterContent: 0 },
+
+                    // --- 湿性材料 ---
+                    { name: '水', isFlour: false, waterContent: 1 },
+                    { name: '牛奶', isFlour: false, waterContent: 0.87 },
+                    { name: '淡奶油', isFlour: false, waterContent: 0.6 },
+                    { name: '蜂蜜', isFlour: false, waterContent: 0.17 },
+                    { name: '炼乳', isFlour: false, waterContent: 0.27 },
+                    { name: '全蛋', isFlour: false, waterContent: 0.75 },
+                    { name: '蛋黄', isFlour: false, waterContent: 0.5 },
+                    { name: '蛋清', isFlour: false, waterContent: 0.88 },
+                    { name: '蛋白', isFlour: false, waterContent: 0.88 },
+
+                    // --- 其他常用干性材料 (保留以便于输入) ---
+                    { name: '白砂糖', isFlour: false, waterContent: 0 },
+                    { name: '盐', isFlour: false, waterContent: 0 },
+                    { name: '即发干酵母', isFlour: false, waterContent: 0 },
+                    { name: '鲜酵母', isFlour: false, waterContent: 0 },
+                    { name: '黄油', isFlour: false, waterContent: 0 },
+                    { name: '奶粉', isFlour: false, waterContent: 0 },
+                    { name: '麦芽精', isFlour: false, waterContent: 0 }
+                ]);
+
+                const suggestionState = ref({
+                    visible: false,
+                    suggestions: [],
+                    target: null,
+                    ingRef: null,
+                });
+                const suggestionBoxStyle = ref({});
+
+                watch(() => suggestionState.value.target, (newTarget) => {
+                    if (!newTarget || !mainContentRef.value) {
+                        suggestionState.value.visible = false;
+                        return;
+                    }
+                    const targetRect = newTarget.getBoundingClientRect();
+                    const parentRect = mainContentRef.value.getBoundingClientRect();
+                    
+                    suggestionBoxStyle.value = {
+                        top: `${targetRect.bottom - parentRect.top + mainContentRef.value.scrollTop}px`,
+                        left: `${targetRect.left - parentRect.left}px`,
+                        width: `${targetRect.width}px`,
+                    };
+                });
+
 
                 const currentRecipeIndex = computed(() => recipes.value.findIndex(r => r.id === currentRecipeId.value));
                 const currentRecipe = computed(() => currentRecipeIndex.value > -1 ? recipes.value[currentRecipeIndex.value] : null);
@@ -499,7 +607,6 @@
                     return availablePreDoughs.value.filter(d => !existingDoughNames.has(d.name));
                 });
 
-                // [最终修复] 优化 watcher，只在 currentRecipeId 变化时执行副作用，且只执行必要的操作
                 watch(currentRecipeId, (newId) => {
                     if (!newId) return;
                     const recipe = recipes.value.find(r => r.id === newId);
@@ -524,6 +631,7 @@
                 };
 
                 const selectRecipe = (id) => {
+                    suggestionState.value.visible = false;
                     currentRecipeId.value = id;
                 };
 
@@ -553,6 +661,51 @@
                          currentRecipe.value.doughs.splice(originalIndex, 1);
                     }
                 };
+                
+                const handleIngredientInput = (ingredient, event) => {
+                    const query = event.target.value;
+                    suggestionState.value.ingRef = ingredient;
+                    suggestionState.value.target = event.target;
+
+                    if (!query) {
+                        suggestionState.value.visible = false;
+                        suggestionState.value.suggestions = [];
+                        return;
+                    }
+
+                    const filtered = predefinedIngredients.value.filter(p => 
+                        p.name.toLowerCase().includes(query.toLowerCase())
+                    );
+                    
+                    suggestionState.value.suggestions = filtered;
+                    suggestionState.value.visible = filtered.length > 0;
+                };
+
+                const handleIngredientBlur = (ingredient) => {
+                    if (ingredient.name) {
+                        const perfectMatch = predefinedIngredients.value.find(p => p.name === ingredient.name);
+                        if (perfectMatch) {
+                            ingredient.isFlour = perfectMatch.isFlour;
+                        }
+                    }
+                    setTimeout(() => {
+                        if (suggestionState.value) {
+                           suggestionState.value.visible = false;
+                        }
+                    }, 200);
+                };
+
+                const selectSuggestion = (suggestion) => {
+                    if (suggestionState.value.ingRef) {
+                        suggestionState.value.ingRef.name = suggestion.name;
+                        suggestionState.value.ingRef.isFlour = suggestion.isFlour;
+                    }
+                    suggestionState.value.visible = false;
+                    suggestionState.value.suggestions = [];
+                    suggestionState.value.target = null;
+                    suggestionState.value.ingRef = null;
+                };
+
 
                 const addMainDoughIngredient = () => mainDough.value.ingredients.push({ id: nextIngredientId++, name: '', ratio: null, isFlour: false });
                 const removeMainDoughIngredient = (index) => mainDough.value.ingredients.splice(index, 1);
@@ -574,7 +727,6 @@
                 const addProductProcedureStep = (prodIndex) => currentRecipe.value.products[prodIndex].procedure.push('');
                 const removeProductProcedureStep = (prodIndex, stepIndex) => currentRecipe.value.products[prodIndex].procedure.splice(stepIndex, 1);
 
-                // [新增修改] 采用 toPrecision(12) 来进行高精度修正，消除浮点数二进制表示误差，同时与 toPercentage 逻辑保持对称。
                 const toDecimal = (percentage) => (percentage === null || percentage === undefined) ? 0 : parseFloat((parseFloat(percentage) / 100).toPrecision(12));
                 const toPercentage = (decimal) => (decimal === null || decimal === undefined) ? null : parseFloat((decimal * 100).toPrecision(12));
                 
@@ -613,15 +765,12 @@
                     reader.readAsText(file);
                 };
                 
-                // [最终修复] 重构 normalizeRecipe 函数，不再使用 getNewForm 和 JSON.parse
                 const normalizeRecipe = (recipe, preDoughMap) => {
-                    // 为所有类型的配方定义一个基础结构，确保对象形状统一
                     const baseRecipe = {
                         id: nextRecipeId++,
                         name: recipe.name,
                         type: recipe.type,
                         notes: recipe.notes || '',
-                        // 统一所有对象都具有这些属性，即使是空的
                         targetTemp: null,
                         doughs: [],
                         products: [],
@@ -670,7 +819,7 @@
                             procedure: (p.procedure && p.procedure.length > 0) ? p.procedure : ['']
                         })) : [{ id: nextRecipeId++, name: '产品1', baseDoughWeight: 100, mixIns: [], fillings: [], toppings: [], procedure: [''] }];
 
-                    } else { // PRE_DOUGH or EXTRA
+                    } else {
                         baseRecipe.ingredients = (recipe.ingredients && recipe.ingredients.length > 0) ? recipe.ingredients.map(ing => ({ 
                             id: nextIngredientId++, 
                             name: ing.name, 
@@ -744,8 +893,11 @@
                     recipes, currentRecipeId, activeProductTab, currentRecipe, mainDough, fileInput,
                     recipeNamePlaceholder, recipeTypeDisplay, isSelfMade, recipeCategories, filteredRecipes,
                     isAddPreDoughModalVisible, availablePreDoughs, availablePreDoughsForReferencing, activeCategory,
+                    mainContentRef,
+                    suggestionState, suggestionBoxStyle,
                     addRecipe, selectRecipe, deleteRecipe, triggerImport, handleFileImport, 
                     openAddPreDoughModal, addPreDoughReference, removePreDough,
+                    handleIngredientInput, handleIngredientBlur, selectSuggestion,
                     addMainDoughIngredient, removeMainDoughIngredient, addMainDoughProcedureStep, removeMainDoughProcedureStep,
                     addOtherIngredient, removeOtherIngredient, addOtherProcedureStep, removeOtherProcedureStep,
                     addProduct, addSubIngredient, removeSubIngredient, addProductProcedureStep, removeProductProcedureStep,
@@ -753,6 +905,5 @@
                 };
             }
         }).mount('#app');
-    </script>
-</body>
+    </script></body>
 </html>
