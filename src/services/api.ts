@@ -1,8 +1,10 @@
 import axios from "axios";
 import { useAuthStore } from "@/store/authStore";
 
+// [核心修改] 从 Vite 的环境变量中读取 baseURL
+// import.meta.env.VITE_API_BASE_URL 的值会根据环境自动变化
 const apiClient = axios.create({
-    baseURL: "http://localhost:9527", // 您的后端 API 地址
+    baseURL: import.meta.env.VITE_API_BASE_URL,
 });
 
 // 请求拦截器，用于在每个请求头中添加 JWT
