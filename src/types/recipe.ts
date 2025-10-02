@@ -1,5 +1,6 @@
 /**
  * @fileoverview [新增] 为配方创建功能提供前端类型定义，与后端 CreateRecipeDto 保持一致。
+ * [修改] 调整了类型以支持新的配方模板数据结构。
  */
 
 // 枚举类型定义
@@ -36,9 +37,10 @@ interface ProductDto {
 // 面团中的原料DTO
 interface DoughIngredientDto {
     name: string;
-    ratio: number;
+    ratio?: number; // [修改] 设置为可选以兼容flourRatio
     isFlour?: boolean;
     waterContent?: number;
+    flourRatio?: number; // [新增] 兼容新的配方数据
 }
 
 // [回滚] 移除 DoughDto
@@ -47,6 +49,7 @@ interface DoughIngredientDto {
 export interface CreateRecipeDto {
     name: string;
     type?: RecipeType;
+    category?: string; // [新增] 兼容新的配方数据
     targetTemp?: number;
     lossRatio?: number;
     ingredients: DoughIngredientDto[]; // [回滚] 恢复顶层 ingredients 数组

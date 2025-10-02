@@ -843,6 +843,10 @@
                     <div v-else>
                         <div class="card">
                             <div class="card-title-wrapper"><span class="card-title">原料列表</span></div>
+                            <div class="form-item">
+                                <label class="form-item-label">工艺损耗率 (%)</label>
+                                <input class="input-field" type="number" v-model.number="currentRecipe.lossRatio" placeholder="例如: 1" />
+                            </div>
                             <div class="ingredient-header">
                                 <span class="col-name">原料名称</span>
                                 <span class="col-ratio">比例 %</span>
@@ -1131,7 +1135,8 @@
                                 ],
                             };
                         }
-                        return { id, name: "", type: type, category, notes: "", ingredients: [JSON.parse(JSON.stringify(commonIngredient))], procedure: [""] };
+                        // [修改] 为非产品配方(面种/其他)添加 lossRatio 属性
+                        return { id, name: "", type: type, category, notes: "", lossRatio: null, ingredients: [JSON.parse(JSON.stringify(commonIngredient))], procedure: [""] };
                     }
 
                     const addRecipe = () => {
@@ -1316,6 +1321,7 @@
                             category: recipe.category || (recipe.type === "MAIN" ? "BREAD" : "OTHER"),
                             notes: recipe.notes || "",
                             targetTemp: null,
+                            lossRatio: null, // [新增] 为基础配方对象添加 lossRatio
                             doughs: [],
                             products: [],
                             ingredients: [],
@@ -1404,6 +1410,8 @@
                                       }))
                                     : [{ id: nextRecipeId++, name: "产品1", baseDoughWeight: 100, mixIns: [], fillings: [], toppings: [], procedure: [""] }];
                         } else {
+                            // [修改] 导入时为非产品配方(面种/其他)设置 lossRatio
+                            baseRecipe.lossRatio = toPercentage(recipe.lossRatio) || null;
                             baseRecipe.ingredients =
                                 recipe.ingredients && recipe.ingredients.length > 0
                                     ? recipe.ingredients.map(processImportedIngredient)
@@ -1470,6 +1478,7 @@
                                         name: recipe.name,
                                         type: recipe.type,
                                         category: recipe.category,
+                                        lossRatio: toDecimal(recipe.lossRatio), // [修改] 导出时添加 lossRatio
                                         ingredients: recipe.ingredients.filter((ing) => ing.name.trim() && ing.ratio !== null).map(formatIngredient),
                                         procedure: recipe.procedure.filter((p) => p.trim()),
                                         products: [],
