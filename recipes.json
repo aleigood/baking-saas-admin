@@ -208,7 +208,7 @@
                 "fillings": [
                     {
                         "name": "柠檬奶油奶酪",
-                        "weightInGrams": 15
+                        "weightInGrams": 20
                     }
                 ],
                 "toppings": []
@@ -509,17 +509,137 @@
                 "ratio": 0.005
             },
             {
-                "name": "黄油",
+                "name": "橄榄油",
                 "ratio": 0.05
             }
         ],
         "products": [
             {
-                "name": "披萨",
-                "weight": 230,
-                "procedure": [],
+                "name": "松露肉丸披萨",
+                "weight": 220,
+                "procedure": [
+                    "上火350度 下火280度 烤5分钟"
+                ],
                 "mixIn": [],
-                "fillings": [],
+                "fillings": [
+                    {
+                        "name": "松露肉丸",
+                        "weightInGrams": 80
+                    },
+                    {
+                        "name": "马苏里拉奶酪",
+                        "weightInGrams": 50
+                    },
+                    {
+                        "name": "烤口蘑",
+                        "weightInGrams": 30
+                    },
+                    {
+                        "name": "罗勒叶",
+                        "weightInGrams": 2
+                    },
+                    {
+                        "name": "松露油",
+                        "weightInGrams": 2
+                    }
+                ],
+                "toppings": []
+            },
+            {
+                "name": "萨拉米披萨",
+                "weight": 220,
+                "procedure": [
+                    "上火350 下火280 烤5分钟"
+                ],
+                "mixIn": [],
+                "fillings": [
+                    {
+                        "name": "自制番茄酱",
+                        "weightInGrams": 80
+                    },
+                    {
+                        "name": "马苏里拉奶酪",
+                        "weightInGrams": 50
+                    },
+                    {
+                        "name": "萨拉米肠",
+                        "weightInGrams": 32
+                    },
+                    {
+                        "name": "烤口蘑",
+                        "weightInGrams": 30
+                    },
+                    {
+                        "name": "罗勒叶",
+                        "weightInGrams": 2
+                    },
+                    {
+                        "name": "橄榄油",
+                        "weightInGrams": 2
+                    }
+                ],
+                "toppings": []
+            },
+            {
+                "name": "香肠披萨",
+                "weight": 220,
+                "procedure": [
+                    "上火350 下火280 烤5分钟"
+                ],
+                "mixIn": [],
+                "fillings": [
+                    {
+                        "name": "马苏里拉奶酪",
+                        "weightInGrams": 60
+                    },
+                    {
+                        "name": "德式纽伦堡香肠",
+                        "weightInGrams": 25
+                    },
+                    {
+                        "name": "德式图林根香肠",
+                        "weightInGrams": 25
+                    },
+                    {
+                        "name": "烤口蘑",
+                        "weightInGrams": 35
+                    },
+                    {
+                        "name": "罗勒叶",
+                        "weightInGrams": 2
+                    },
+                    {
+                        "name": "橄榄油",
+                        "weightInGrams": 3
+                    }
+                ],
+                "toppings": []
+            },
+            {
+                "name": "玛格丽特披萨",
+                "weight": 220,
+                "procedure": [
+                    "上火350 下火280 烤5分钟"
+                ],
+                "mixIn": [],
+                "fillings": [
+                    {
+                        "name": "自制番茄酱",
+                        "weightInGrams": 80
+                    },
+                    {
+                        "name": "马苏里拉奶酪",
+                        "weightInGrams": 50
+                    },
+                    {
+                        "name": "罗勒叶",
+                        "weightInGrams": 3
+                    },
+                    {
+                        "name": "橄榄油",
+                        "weightInGrams": 3
+                    }
+                ],
                 "toppings": []
             }
         ]
@@ -596,7 +716,7 @@
                 "mixIn": [
                     {
                         "name": "黑芝麻",
-                        "ratio": 0.03
+                        "ratio": 0.04
                     }
                 ],
                 "fillings": [],
@@ -616,12 +736,12 @@
                 "mixIn": [],
                 "fillings": [
                     {
-                        "name": "半条培根",
-                        "weightInGrams": 10
+                        "name": "培根",
+                        "weightInGrams": 16
                     },
                     {
-                        "name": "马苏里拉奶酪",
-                        "weightInGrams": 10
+                        "name": "奶油奶酪",
+                        "weightInGrams": 15
                     }
                 ],
                 "toppings": []
@@ -1052,5 +1172,111 @@
                 "toppings": []
             }
         ]
+    },
+    {
+        "name": "复合谷物",
+        "type": "EXTRA",
+        "category": "OTHER",
+        "lossRatio": 0,
+        "ingredients": [
+            {
+                "name": "熟葵花子",
+                "ratio": 1
+            },
+            {
+                "name": "燕麦片",
+                "ratio": 1
+            },
+            {
+                "name": "熟白芝麻",
+                "ratio": 0.5
+            },
+            {
+                "name": "熟黑芝麻",
+                "ratio": 0.5
+            },
+            {
+                "name": "熟南瓜子",
+                "ratio": 1
+            }
+        ],
+        "procedure": [],
+        "products": []
+    },
+    {
+        "name": "烤口蘑",
+        "type": "EXTRA",
+        "category": "OTHER",
+        "lossRatio": 0.1,
+        "ingredients": [
+            {
+                "name": "口蘑",
+                "ratio": 1
+            },
+            {
+                "name": "百里香",
+                "ratio": 0.01
+            },
+            {
+                "name": "食用油",
+                "ratio": 0.02
+            }
+        ],
+        "procedure": [
+            "切薄片，180度烤10分钟"
+        ],
+        "products": []
+    },
+    {
+        "name": "松露肉丸",
+        "type": "EXTRA",
+        "category": "OTHER",
+        "lossRatio": 0.1,
+        "ingredients": [
+            {
+                "name": "猪肉",
+                "ratio": 1
+            },
+            {
+                "name": "牛肝菌",
+                "ratio": 0.18
+            },
+            {
+                "name": "盐",
+                "ratio": 0.02
+            },
+            {
+                "name": "松露酱",
+                "ratio": 0.05
+            }
+        ],
+        "procedure": [
+            "200度烤8分钟"
+        ],
+        "products": []
+    },
+    {
+        "name": "自制番茄酱",
+        "type": "EXTRA",
+        "category": "OTHER",
+        "lossRatio": 0,
+        "ingredients": [
+            {
+                "name": "番茄罐头",
+                "ratio": 1
+            },
+            {
+                "name": "白砂糖",
+                "ratio": 0.05
+            },
+            {
+                "name": "罗勒叶",
+                "ratio": 0.02
+            }
+        ],
+        "procedure": [
+            "番茄罐头搅碎后加入白砂糖和碎罗勒叶后放冰箱冷藏一晚"
+        ],
+        "products": []
     }
 ]
