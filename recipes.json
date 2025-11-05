@@ -1199,7 +1199,7 @@
         "name": "烤口蘑",
         "type": "EXTRA",
         "category": "OTHER",
-        "lossRatio": 0.1,
+        "lossRatio": 0.5,
         "ingredients": [
             {
                 "name": "口蘑",
@@ -1212,6 +1212,10 @@
             {
                 "name": "食用油",
                 "ratio": 0.02
+            },
+            {
+                "name": "盐",
+                "ratio": 0.01
             }
         ],
         "procedure": [
@@ -1243,7 +1247,7 @@
             }
         ],
         "procedure": [
-            "200度烤8分钟"
+            "200度烤12分钟"
         ],
         "products": []
     },
@@ -1275,11 +1279,11 @@
         "name": "芝士培根",
         "type": "EXTRA",
         "category": "OTHER",
-        "lossRatio": 0,
+        "lossRatio": 0.2,
         "ingredients": [
             {
                 "name": "奶油奶酪",
-                "ratio": 1
+                "ratio": 0.8
             },
             {
                 "name": "培根",
