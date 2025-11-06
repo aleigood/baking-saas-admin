@@ -1059,7 +1059,7 @@
         "category": "OTHER",
         "versions": [
             {
-                "notes": "初始版本",
+                "notes": "玉米淀粉版",
                 "lossRatio": 0.08,
                 "ingredients": [
                     {
@@ -1083,6 +1083,41 @@
                     {
                         "name": "黄油",
                         "ratio": 0.052
+                    }
+                ],
+                "procedure": [
+                    "@糖（[10%]放入蛋黄低级粉搅拌，[10%]放入牛奶中搅拌）",
+                    "将一半的糖放入牛奶加热到90度左右（微微冒泡）",
+                    "牛奶加热到90度后将1/3牛奶倒入将蛋黄、玉米淀粉和另一半糖进行搅拌",
+                    "将混合均匀的混合物缓慢导回锅中，边搅拌边倒入直至变成粘稠状后加入黄油搅拌"
+                ],
+                "products": []
+            },
+            {
+                "notes": "低筋粉版",
+                "lossRatio": 0.08,
+                "ingredients": [
+                    {
+                        "name": "牛奶",
+                        "ratio": 1,
+                        "waterContent": 0.87
+                    },
+                    {
+                        "name": "蛋黄",
+                        "ratio": 0.2,
+                        "waterContent": 0.5
+                    },
+                    {
+                        "name": "糖",
+                        "ratio": 0.2
+                    },
+                    {
+                        "name": "低筋粉",
+                        "ratio": 0.12
+                    },
+                    {
+                        "name": "黄油",
+                        "ratio": 0.05
                     }
                 ],
                 "procedure": [
