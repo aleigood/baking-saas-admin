@@ -5,7 +5,7 @@
         "category": "OTHER",
         "versions": [
             {
-                "notes": "初始版本",
+                "notes": "初版",
                 "lossRatio": 0.01,
                 "ingredients": [
                     {
@@ -36,7 +36,7 @@
         "category": "OTHER",
         "versions": [
             {
-                "notes": "初始版本",
+                "notes": "初版",
                 "lossRatio": 0.05,
                 "ingredients": [
                     {
@@ -69,7 +69,7 @@
         "category": "OTHER",
         "versions": [
             {
-                "notes": "初始版本",
+                "notes": "初版",
                 "lossRatio": 0.01,
                 "ingredients": [
                     {
@@ -100,7 +100,7 @@
         "category": "OTHER",
         "versions": [
             {
-                "notes": "初始版本",
+                "notes": "初版",
                 "lossRatio": 0.01,
                 "ingredients": [
                     {
@@ -123,7 +123,7 @@
         "category": "OTHER",
         "versions": [
             {
-                "notes": "初始版本",
+                "notes": "初版",
                 "lossRatio": 0.01,
                 "ingredients": [
                     {
@@ -146,7 +146,7 @@
         "category": "OTHER",
         "versions": [
             {
-                "notes": "初始版本",
+                "notes": "初版",
                 "lossRatio": 0.01,
                 "ingredients": [
                     {
@@ -169,7 +169,7 @@
         "category": "BREAD",
         "versions": [
             {
-                "notes": "初始版本",
+                "notes": "初版",
                 "targetTemp": 26,
                 "lossRatio": 0.01,
                 "divisionLoss": 2,
@@ -318,7 +318,7 @@
         "category": "OTHER",
         "versions": [
             {
-                "notes": "初始版本",
+                "notes": "初版",
                 "lossRatio": 0.01,
                 "ingredients": [
                     {
@@ -345,7 +345,7 @@
         "category": "OTHER",
         "versions": [
             {
-                "notes": "初始版本",
+                "notes": "初版",
                 "lossRatio": 0.01,
                 "ingredients": [
                     {
@@ -370,7 +370,7 @@
         "category": "BREAD",
         "versions": [
             {
-                "notes": "初始版本",
+                "notes": "初版",
                 "targetTemp": 26,
                 "lossRatio": 0.01,
                 "divisionLoss": 2,
@@ -445,7 +445,7 @@
         "category": "BREAD",
         "versions": [
             {
-                "notes": "初始版本",
+                "notes": "初版",
                 "targetTemp": 22,
                 "lossRatio": 0.03,
                 "divisionLoss": 2,
@@ -529,7 +529,7 @@
         "category": "BREAD",
         "versions": [
             {
-                "notes": "初始版本",
+                "notes": "初版",
                 "targetTemp": 24,
                 "lossRatio": 0.01,
                 "divisionLoss": 2,
@@ -586,15 +586,11 @@
                             },
                             {
                                 "name": "马苏里拉奶酪",
-                                "weightInGrams": 50
+                                "weightInGrams": 60
                             },
                             {
                                 "name": "烤口蘑",
                                 "weightInGrams": 30
-                            },
-                            {
-                                "name": "罗勒叶",
-                                "weightInGrams": 2
                             },
                             {
                                 "name": "松露油",
@@ -613,11 +609,11 @@
                         "fillings": [
                             {
                                 "name": "自制番茄酱",
-                                "weightInGrams": 80
+                                "weightInGrams": 60
                             },
                             {
                                 "name": "马苏里拉奶酪",
-                                "weightInGrams": 50
+                                "weightInGrams": 55
                             },
                             {
                                 "name": "萨拉米肠",
@@ -687,11 +683,11 @@
                             },
                             {
                                 "name": "马苏里拉奶酪",
-                                "weightInGrams": 50
+                                "weightInGrams": 60
                             },
                             {
                                 "name": "罗勒叶",
-                                "weightInGrams": 3
+                                "weightInGrams": 2
                             },
                             {
                                 "name": "橄榄油",
@@ -710,7 +706,7 @@
         "category": "BREAD",
         "versions": [
             {
-                "notes": "初始版本",
+                "notes": "初版",
                 "targetTemp": 26,
                 "lossRatio": 0.01,
                 "divisionLoss": 2,
@@ -811,7 +807,7 @@
         "category": "BREAD",
         "versions": [
             {
-                "notes": "初始版本",
+                "notes": "初版",
                 "targetTemp": 26,
                 "lossRatio": 0.01,
                 "divisionLoss": 2,
@@ -931,7 +927,7 @@
         "category": "OTHER",
         "versions": [
             {
-                "notes": "初始版本",
+                "notes": "初版",
                 "lossRatio": 0.01,
                 "ingredients": [
                     {
@@ -954,7 +950,7 @@
         "category": "BREAD",
         "versions": [
             {
-                "notes": "初始版本",
+                "notes": "初版",
                 "targetTemp": 26,
                 "lossRatio": 0.01,
                 "divisionLoss": 2,
@@ -1136,7 +1132,7 @@
         "category": "BREAD",
         "versions": [
             {
-                "notes": "初始版本",
+                "notes": "初版",
                 "targetTemp": 26,
                 "lossRatio": 0.01,
                 "divisionLoss": 2,
@@ -1212,7 +1208,7 @@
         "category": "OTHER",
         "versions": [
             {
-                "notes": "初始版本",
+                "notes": "初版",
                 "lossRatio": 0.01,
                 "ingredients": [
                     {
@@ -1237,7 +1233,7 @@
         "category": "BREAD",
         "versions": [
             {
-                "notes": "初始版本",
+                "notes": "初版",
                 "targetTemp": 22,
                 "lossRatio": 0.02,
                 "divisionLoss": 2,
@@ -1306,7 +1302,7 @@
         "category": "OTHER",
         "versions": [
             {
-                "notes": "初始版本",
+                "notes": "初版",
                 "lossRatio": 0,
                 "ingredients": [
                     {
@@ -1341,7 +1337,7 @@
         "category": "OTHER",
         "versions": [
             {
-                "notes": "初始版本",
+                "notes": "初版",
                 "lossRatio": 0.5,
                 "ingredients": [
                     {
@@ -1362,7 +1358,7 @@
                     }
                 ],
                 "procedure": [
-                    "切薄片，180度烤10分钟"
+                    "切薄片，180度烤9分钟"
                 ],
                 "products": []
             }
@@ -1374,7 +1370,7 @@
         "category": "OTHER",
         "versions": [
             {
-                "notes": "初始版本",
+                "notes": "初版",
                 "lossRatio": 0.1,
                 "ingredients": [
                     {
@@ -1407,7 +1403,7 @@
         "category": "OTHER",
         "versions": [
             {
-                "notes": "初始版本",
+                "notes": "初版",
                 "lossRatio": 0,
                 "ingredients": [
                     {
@@ -1416,7 +1412,7 @@
                     },
                     {
                         "name": "白砂糖",
-                        "ratio": 0.05
+                        "ratio": 0.018
                     },
                     {
                         "name": "罗勒叶",
@@ -1436,7 +1432,7 @@
         "category": "OTHER",
         "versions": [
             {
-                "notes": "初始版本",
+                "notes": "初版",
                 "lossRatio": 0.2,
                 "ingredients": [
                     {
