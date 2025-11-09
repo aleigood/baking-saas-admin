@@ -1463,5 +1463,28 @@
                 "products": []
             }
         ]
+    },
+    {
+        "name": "青酱",
+        "type": "EXTRA",
+        "category": "OTHER",
+        "versions": [
+            {
+                "notes": "初版",
+                "lossRatio": 0,
+                "ingredients": [
+                    {
+                        "name": "罗勒叶",
+                        "ratio": 1
+                    },
+                    {
+                        "name": "橄榄油",
+                        "ratio": 0.8
+                    }
+                ],
+                "procedure": [],
+                "products": []
+            }
+        ]
     }
 ]
