@@ -1,163 +1,46 @@
 /**
  * 文件路径: src/store/recipeTemplateStore.ts
- * 文件描述: [修改] getTemplate 现在返回用户提供的、使用小数配方的示例。
- * [新增] createRecipe 方法在发送数据前，会自动将百分比配方转换为小数。
+ * [G-Code-Note] [核心修改] 移除了 getTemplate 和 createRecipe 两个不再使用的方法
  */
 import { create } from "zustand";
 import apiClient from "@/services/api";
-import { CreateRecipeDto, RecipeType, ProductIngredientType } from "@/types/recipe"; // [新增] 引入配方类型
+// [G-Code-Note] [核心修改] 移除了 CreateRecipeDto, 只保留批量导入相关的类型
+import { BatchImportRecipeDto, BatchImportResultDto } from "@/types/recipe";
 
 interface RecipeTemplateState {
     loading: boolean;
-    getTemplate: () => Promise<any>;
-    createRecipe: (tenantId: string, recipeData: CreateRecipeDto) => Promise<void>;
+    // [G-Code-Note] [核心修改] 移除了 getTemplate
+    // [G-Code-Note] [核心修改] 移除了 createRecipe
+    // [G-Code-Note] [核心新增] 添加新的批量导入方法，并明确返回类型
+    batchImportRecipes: (
+        tenantId: string,
+        recipes: BatchImportRecipeDto[],
+    ) => Promise<BatchImportResultDto>;
 }
 
-export const useRecipeTemplateStore = create<RecipeTemplateState>(() => ({
+export const useRecipeTemplateStore = create<RecipeTemplateState>((set) => ({
     loading: false,
-    // [修改] getTemplate 现在返回一个新的包含三个配方案例的数组。
-    getTemplate: async () => {
-        const recipeExamples: CreateRecipeDto[] = [
-            {
-                name: "烫种",
-                type: RecipeType.PRE_DOUGH,
-                lossRatio: 0.1,
-                category: "OTHER",
-                ingredients: [
-                    {
-                        name: "高筋粉",
-                        ratio: 1,
-                        isFlour: true,
-                    },
-                    {
-                        name: "水",
-                        ratio: 2,
-                        waterContent: 1,
-                    },
-                    {
-                        name: "糖",
-                        ratio: 0.2,
-                    },
-                    {
-                        name: "盐",
-                        ratio: 0.02,
-                    },
-                ],
-                procedure: [],
-                products: [],
-            },
-            {
-                name: "卡仕达酱",
-                type: RecipeType.EXTRA,
-                lossRatio: 0.05,
-                category: "OTHER",
-                ingredients: [
-                    {
-                        name: "牛奶",
-                        ratio: 1,
-                        waterContent: 0.87,
-                    },
-                    {
-                        name: "蛋黄",
-                        ratio: 0.2,
-                        waterContent: 0.5,
-                    },
-                    {
-                        name: "糖",
-                        ratio: 0.2,
-                    },
-                    {
-                        name: "低筋粉",
-                        ratio: 0.12,
-                    },
-                    {
-                        name: "黄油",
-                        ratio: 0.05,
-                    },
-                ],
-                procedure: [],
-                products: [],
-            },
-            {
-                name: "甜面团",
-                type: RecipeType.MAIN,
-                category: "BREAD",
-                targetTemp: 26,
-                lossRatio: 0.03,
-                procedure: ["搅拌：采用后糖法，搅拌至完全扩展"],
-                ingredients: [
-                    {
-                        name: "烫种",
-                        flourRatio: 0.08,
-                    },
-                    {
-                        name: "高筋粉",
-                        ratio: 0.92,
-                        isFlour: true,
-                    },
-                    {
-                        name: "水",
-                        ratio: 0.4,
-                        waterContent: 1,
-                    },
-                    {
-                        name: "盐",
-                        ratio: 0.0084,
-                    },
-                    {
-                        name: "糖",
-                        ratio: 0.184,
-                    },
-                    {
-                        name: "半干酵母",
-                        ratio: 0.013,
-                    },
-                    {
-                        name: "黄油",
-                        ratio: 0.08,
-                    },
-                    {
-                        name: "奶粉",
-                        ratio: 0.02,
-                    },
-                    {
-                        name: "全蛋",
-                        ratio: 0.2,
-                        waterContent: 0.75,
-                    },
-                    {
-                        name: "麦芽精",
-                        ratio: 0.01,
-                    },
-                ],
-                products: [
-                    {
-                        name: "熊掌卡仕达",
-                        weight: 50,
-                        procedure: ["发酵：二发温度35度50分钟", "烘烤：烤前刷过筛蛋液，两个杏仁片 一盘11个 上火210 下火180 烤10分钟"],
-                        mixIn: [],
-                        fillings: [
-                            {
-                                name: "卡仕达酱",
-                                type: ProductIngredientType.FILLING,
-                                weightInGrams: 30,
-                            },
-                        ],
-                        toppings: [],
-                    },
-                ],
-            },
-        ];
-        return Promise.resolve(recipeExamples);
-    },
-    // [修改] 实现配方创建逻辑，并移除 ratio / 100 的转换
-    createRecipe: async (tenantId: string, recipeData: CreateRecipeDto) => {
+
+    // [G-Code-Note] [核心修改] 已移除 getTemplate 和 recipeExamples 数组
+
+    // [G-Code-Note] [核心修改] 已移除 createRecipe 方法
+
+    // [G-Code-Note] [核心新增] 新的批量导入方法
+    batchImportRecipes: async (tenantId: string, recipes: BatchImportRecipeDto[]) => {
+        set({ loading: true });
         try {
-            // [修改] 不再对 ratio 进行任何转换，直接将 recipeData 发送到后端
-            await apiClient.post(`/super-admin/tenants/${tenantId}/recipes`, recipeData);
+            // [G-Code-Note] 调用我们新创建的批量导入接口
+            // 它一次性发送整个数组
+            const response = await apiClient.post(
+                `/super-admin/tenants/${tenantId}/recipes/batch-import`,
+                recipes,
+            );
+            return response.data; // 返回导入结果 (BatchImportResultDto)
         } catch (error) {
-            console.error("Failed to create recipe:", error);
-            throw error; // 向上抛出错误，以便UI层捕获
+            console.error("Failed to batch import recipes:", error);
+            throw error;
+        } finally {
+            set({ loading: false });
         }
     },
 }));

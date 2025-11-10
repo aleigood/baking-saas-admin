@@ -39,7 +39,8 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                         { key: "dashboard", icon: <Home size={16} />, label: "仪表盘" },
                         { key: "users", icon: <Users size={16} />, label: "用户管理" },
                         { key: "tenants", icon: <Store size={16} />, label: "店铺管理" },
-                        { key: "recipes", icon: <BookCopy size={16} />, label: "配方模板" },
+                        // [G-Code-Note] [核心修改] 标签文本已修改
+                        { key: "recipes", icon: <BookCopy size={16} />, label: "配方管理" },
                     ]}
                 />
             </Sider>
