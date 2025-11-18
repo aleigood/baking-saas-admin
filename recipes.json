@@ -601,6 +601,46 @@
         ]
     },
     {
+        "name": "咖啡奶酥",
+        "type": "EXTRA",
+        "category": "OTHER",
+        "versions": [
+            {
+                "notes": "初版",
+                "lossRatio": 0.01,
+                "ingredients": [
+                    {
+                        "name": "奶粉",
+                        "ratio": 1
+                    },
+                    {
+                        "name": "黄油",
+                        "ratio": 0.875
+                    },
+                    {
+                        "name": "糖粉",
+                        "ratio": 0.875
+                    },
+                    {
+                        "name": "全蛋液",
+                        "ratio": 0.375
+                    },
+                    {
+                        "name": "咖啡粉",
+                        "ratio": 0.1
+                    }
+                ],
+                "procedure": [
+                    "软化黄油加入糖粉，用挂到或打蛋器搅拌均匀",
+                    "分次加入室温的全蛋液，搅拌均匀",
+                    "加入奶粉和速溶咖啡粉，用刮刀切拌、按压均匀",
+                    "最终的状态是可以捏成团的沙粒状。如果太湿粘，可适量加一点点奶粉。"
+                ],
+                "products": []
+            }
+        ]
+    },
+    {
         "name": "贝果",
         "type": "MAIN",
         "category": "BREAD",
