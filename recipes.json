@@ -522,11 +522,11 @@
                     },
                     {
                         "name": "黑胡椒",
-                        "ratio": 0.003
+                        "ratio": 0.002
                     }
                 ],
                 "procedure": [
-                    "培根要用150度烤18-20分钟后切碎",
+                    "培根要用180度烤10分钟后切碎",
                     "奶油奶酪软化后与培根搅拌"
                 ],
                 "products": []
@@ -576,28 +576,23 @@
                 "ingredients": [
                     {
                         "name": "低筋粉",
-                        "ratio": 0.38,
-                        "isFlour": true
-                    },
-                    {
-                        "name": "糖粉",
-                        "ratio": 0.3
+                        "ratio": 1
                     },
                     {
                         "name": "黄油",
-                        "ratio": 0.25
+                        "ratio": 1
+                    },
+                    {
+                        "name": "糖粉",
+                        "ratio": 0.9
                     },
                     {
                         "name": "全蛋液",
-                        "ratio": 0.17
-                    },
-                    {
-                        "name": "奶粉",
-                        "ratio": 0.05
+                        "ratio": 0.8
                     },
                     {
                         "name": "咖啡粉",
-                        "ratio": 0.03
+                        "ratio": 0.07
                     }
                 ],
                 "procedure": [],
@@ -832,7 +827,20 @@
                         "mixIn": [
                             {
                                 "name": "速溶咖啡粉",
-                                "ratio": 0.025
+                                "ratio": 0.04
+                            }
+                        ],
+                        "fillings": [],
+                        "toppings": []
+                    },
+                    {
+                        "name": "罗勒海盐卷",
+                        "weight": 65,
+                        "procedure": [],
+                        "mixIn": [
+                            {
+                                "name": "自制青酱",
+                                "ratio": 0.04
                             }
                         ],
                         "fillings": [],
@@ -1556,7 +1564,7 @@
                         "mixIn": [
                             {
                                 "name": "酒渍提子干",
-                                "ratio": 0.2
+                                "ratio": 0.15
                             },
                             {
                                 "name": "核桃干",
