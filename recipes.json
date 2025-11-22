@@ -25,8 +25,7 @@
                 ],
                 "procedure": [
                     "室温发酵2小时，然后放入冰箱发酵18小时以上"
-                ],
-                "products": []
+                ]
             }
         ]
     },
@@ -58,8 +57,7 @@
                         "ratio": 0.02
                     }
                 ],
-                "procedure": [],
-                "products": []
+                "procedure": []
             }
         ]
     },
@@ -85,8 +83,7 @@
                 ],
                 "procedure": [
                     "发至两倍大然后放冰箱冷藏一夜"
-                ],
-                "products": []
+                ]
             }
         ]
     },
@@ -110,8 +107,7 @@
                         "waterContent": 1
                     }
                 ],
-                "procedure": [],
-                "products": []
+                "procedure": []
             }
         ]
     },
@@ -135,8 +131,7 @@
                         "waterContent": 1
                     }
                 ],
-                "procedure": [],
-                "products": []
+                "procedure": []
             }
         ]
     },
@@ -166,8 +161,7 @@
                         "ratio": 0.01
                     }
                 ],
-                "procedure": [],
-                "products": []
+                "procedure": []
             }
         ]
     },
@@ -189,8 +183,7 @@
                         "ratio": 0.2
                     }
                 ],
-                "procedure": [],
-                "products": []
+                "procedure": []
             }
         ]
     },
@@ -212,8 +205,7 @@
                         "ratio": 0.2
                     }
                 ],
-                "procedure": [],
-                "products": []
+                "procedure": []
             }
         ]
     },
@@ -235,8 +227,7 @@
                         "ratio": 0.2
                     }
                 ],
-                "procedure": [],
-                "products": []
+                "procedure": []
             }
         ]
     },
@@ -260,8 +251,7 @@
                 ],
                 "procedure": [
                     "用裱花袋挤成条状，放冰箱冷冻定型"
-                ],
-                "products": []
+                ]
             }
         ]
     },
@@ -283,8 +273,7 @@
                         "ratio": 0.15
                     }
                 ],
-                "procedure": [],
-                "products": []
+                "procedure": []
             }
         ]
     },
@@ -316,7 +305,7 @@
                         "ratio": 0.1
                     },
                     {
-                        "name": "黄油",
+                        "name": "发酵黄油",
                         "ratio": 0.052
                     },
                     {
@@ -329,8 +318,7 @@
                     "将一半的白砂糖放入牛奶加热到90度左右（微微冒泡）",
                     "牛奶加热到90度后将1/3牛奶倒入将蛋黄、玉米淀粉和另一半白砂糖进行搅拌",
                     "将混合均匀的混合物缓慢导回锅中，边搅拌边倒入直至变成粘稠状后加入黄油搅拌"
-                ],
-                "products": []
+                ]
             },
             {
                 "notes": "低筋粉版",
@@ -355,7 +343,7 @@
                         "ratio": 0.12
                     },
                     {
-                        "name": "黄油",
+                        "name": "发酵黄油",
                         "ratio": 0.05
                     }
                 ],
@@ -364,8 +352,7 @@
                     "将一半的白砂糖放入牛奶加热到90度左右（微微冒泡）",
                     "牛奶加热到90度后将1/3牛奶倒入将蛋黄、低筋粉和另一半白砂糖进行搅拌",
                     "将混合均匀的混合物缓慢导回锅中，边搅拌边倒入直至变成粘稠状后加入黄油搅拌"
-                ],
-                "products": []
+                ]
             }
         ]
     },
@@ -399,8 +386,7 @@
                         "ratio": 0.5
                     }
                 ],
-                "procedure": [],
-                "products": []
+                "procedure": []
             }
         ]
     },
@@ -432,8 +418,7 @@
                 ],
                 "procedure": [
                     "切薄片，180度烤9分钟"
-                ],
-                "products": []
+                ]
             }
         ]
     },
@@ -465,8 +450,7 @@
                 ],
                 "procedure": [
                     "上火200 下火 220 烤12分钟"
-                ],
-                "products": []
+                ]
             }
         ]
     },
@@ -494,8 +478,7 @@
                 ],
                 "procedure": [
                     "番茄罐头搅碎后加入白砂糖和碎罗勒叶后放冰箱冷藏一晚"
-                ],
-                "products": []
+                ]
             }
         ]
     },
@@ -528,8 +511,7 @@
                 "procedure": [
                     "培根要用180度烤10分钟后切碎",
                     "奶油奶酪软化后与培根搅拌"
-                ],
-                "products": []
+                ]
             }
         ]
     },
@@ -560,8 +542,7 @@
                     "放入搅拌机加入油打至粗糊状即可（不要过细，会氧化变暗）",
                     "用消毒的玻璃瓶灌入罗勒糊，最重要：表面再淋薄薄一层油密封氧气",
                     "冷藏 or 冷冻保存，冷藏 2～4 周，冷冻 3～6 个月"
-                ],
-                "products": []
+                ]
             }
         ]
     },
@@ -596,8 +577,7 @@
                         "ratio": 0.07
                     }
                 ],
-                "procedure": [],
-                "products": []
+                "procedure": []
             }
         ]
     },
@@ -637,8 +617,32 @@
                     "分次加入室温的全蛋，搅拌均匀",
                     "加入奶粉和速溶咖啡，用刮刀切拌、按压均匀",
                     "最终的状态是可以捏成团的沙粒状。如果太湿粘，可适量加一点点奶粉。"
+                ]
+            }
+        ]
+    },
+    {
+        "name": "香茅草液",
+        "type": "EXTRA",
+        "category": "OTHER",
+        "versions": [
+            {
+                "notes": "初版",
+                "lossRatio": 0,
+                "ingredients": [
+                    {
+                        "name": "水",
+                        "ratio": 1,
+                        "waterContent": 1
+                    },
+                    {
+                        "name": "香茅草",
+                        "ratio": 0.08
+                    }
                 ],
-                "products": []
+                "procedure": [
+                    "香茅草打碎放入水中浸泡一夜"
+                ]
             }
         ]
     },
@@ -886,6 +890,19 @@
                             }
                         ],
                         "fillings": [],
+                        "toppings": []
+                    },
+                    {
+                        "name": "咖啡奶酥小吐司",
+                        "weight": 80,
+                        "procedure": [],
+                        "mixIn": [],
+                        "fillings": [
+                            {
+                                "name": "咖啡奶酥",
+                                "weightInGrams": 10
+                            }
+                        ],
                         "toppings": []
                     }
                 ]
@@ -1313,7 +1330,7 @@
                 "products": [
                     {
                         "name": "云朵吐司",
-                        "weight": 245,
+                        "weight": 280,
                         "procedure": [],
                         "mixIn": [],
                         "fillings": [],
@@ -1321,7 +1338,7 @@
                     },
                     {
                         "name": "玫瑰云朵吐司",
-                        "weight": 245,
+                        "weight": 280,
                         "procedure": [],
                         "mixIn": [
                             {
@@ -1334,7 +1351,7 @@
                     },
                     {
                         "name": "桂花云朵吐司",
-                        "weight": 245,
+                        "weight": 280,
                         "procedure": [],
                         "mixIn": [
                             {
@@ -1351,7 +1368,7 @@
                     },
                     {
                         "name": "茉莉云朵吐司",
-                        "weight": 245,
+                        "weight": 280,
                         "procedure": [],
                         "mixIn": [
                             {
@@ -1435,7 +1452,7 @@
                 "products": [
                     {
                         "name": "香葱肉松吐司",
-                        "weight": 240,
+                        "weight": 280,
                         "procedure": [],
                         "mixIn": [],
                         "fillings": [
@@ -1456,7 +1473,7 @@
                     },
                     {
                         "name": "蛋黄肉松吐司",
-                        "weight": 240,
+                        "weight": 280,
                         "procedure": [],
                         "mixIn": [],
                         "fillings": [
@@ -1670,6 +1687,136 @@
                                 "ratio": 0.04
                             }
                         ],
+                        "fillings": [],
+                        "toppings": []
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "鲜奶吐司",
+        "type": "MAIN",
+        "category": "BREAD",
+        "versions": [
+            {
+                "notes": "初版",
+                "targetTemp": 24,
+                "lossRatio": 0.01,
+                "divisionLoss": 2,
+                "procedure": [],
+                "ingredients": [
+                    {
+                        "name": "烫种",
+                        "flourRatio": 0.08
+                    },
+                    {
+                        "name": "高筋粉",
+                        "ratio": 0.92,
+                        "isFlour": true
+                    },
+                    {
+                        "name": "牛奶",
+                        "ratio": 0.37,
+                        "waterContent": 0.87
+                    },
+                    {
+                        "name": "水",
+                        "ratio": 0.257,
+                        "waterContent": 1
+                    },
+                    {
+                        "name": "白砂糖",
+                        "ratio": 0.09
+                    },
+                    {
+                        "name": "黄油",
+                        "ratio": 0.08
+                    },
+                    {
+                        "name": "炼乳",
+                        "ratio": 0.08,
+                        "waterContent": 0.27
+                    },
+                    {
+                        "name": "奶粉",
+                        "ratio": 0.03
+                    },
+                    {
+                        "name": "盐",
+                        "ratio": 0.015
+                    },
+                    {
+                        "name": "半干酵母",
+                        "ratio": 0.01
+                    }
+                ],
+                "products": [
+                    {
+                        "name": "鲜奶吐司",
+                        "weight": 270,
+                        "procedure": [],
+                        "mixIn": [],
+                        "fillings": [],
+                        "toppings": []
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "香茅草吐司",
+        "type": "MAIN",
+        "category": "BREAD",
+        "versions": [
+            {
+                "notes": "初版",
+                "targetTemp": 26,
+                "lossRatio": 0.01,
+                "divisionLoss": 2,
+                "procedure": [],
+                "ingredients": [
+                    {
+                        "name": "高筋粉",
+                        "ratio": 1,
+                        "isFlour": true
+                    },
+                    {
+                        "name": "香茅草液",
+                        "ratio": 0.75
+                    },
+                    {
+                        "name": "椰浆",
+                        "ratio": 0.2
+                    },
+                    {
+                        "name": "白砂糖",
+                        "ratio": 0.08
+                    },
+                    {
+                        "name": "黄油",
+                        "ratio": 0.06
+                    },
+                    {
+                        "name": "炼乳",
+                        "ratio": 0.05,
+                        "waterContent": 0.27
+                    },
+                    {
+                        "name": "盐",
+                        "ratio": 0.018
+                    },
+                    {
+                        "name": "半干酵母",
+                        "ratio": 0.01
+                    }
+                ],
+                "products": [
+                    {
+                        "name": "香茅草椰香吐司",
+                        "weight": 280,
+                        "procedure": [],
+                        "mixIn": [],
                         "fillings": [],
                         "toppings": []
                     }
