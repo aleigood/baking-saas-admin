@@ -20,11 +20,11 @@
                     },
                     {
                         "name": "半干酵母",
-                        "ratio": 0.005
+                        "ratio": 0.0024
                     }
                 ],
                 "procedure": [
-                    "室温发酵2小时，然后放入冰箱发酵18小时以上"
+                    "28度发酵2小时，然后放入冰箱发酵18小时以上"
                 ]
             }
         ]
@@ -697,7 +697,7 @@
                     },
                     {
                         "name": "半干酵母",
-                        "ratio": 0.005
+                        "ratio": 0.01
                     }
                 ],
                 "products": [
@@ -845,7 +845,7 @@
                     },
                     {
                         "name": "半干酵母",
-                        "ratio": 0.008
+                        "ratio": 0.01
                     },
                     {
                         "name": "麦芽精",
@@ -1324,7 +1324,7 @@
                     },
                     {
                         "name": "半干酵母",
-                        "ratio": 0.008
+                        "ratio": 0.01
                     }
                 ],
                 "products": [
@@ -1415,7 +1415,7 @@
                     },
                     {
                         "name": "水",
-                        "ratio": 0.34,
+                        "ratio": 0.43,
                         "waterContent": 1
                     },
                     {
@@ -1428,17 +1428,12 @@
                         "ratio": 0.1
                     },
                     {
-                        "name": "牛奶",
-                        "ratio": 0.1,
-                        "waterContent": 0.87
-                    },
-                    {
                         "name": "白砂糖",
                         "ratio": 0.084
                     },
                     {
                         "name": "奶粉",
-                        "ratio": 0.03
+                        "ratio": 0.04
                     },
                     {
                         "name": "盐",
@@ -1446,7 +1441,7 @@
                     },
                     {
                         "name": "半干酵母",
-                        "ratio": 0.008
+                        "ratio": 0.01
                     }
                 ],
                 "products": [
@@ -1704,7 +1699,11 @@
                 "targetTemp": 24,
                 "lossRatio": 0.01,
                 "divisionLoss": 2,
-                "procedure": [],
+                "procedure": [
+                    "把液体（鲜奶 + 水）全部加入，预留炼乳最后再加入",
+                    "烫种切块加入，搅到粗膜后再加炼乳",
+                    "加到 7～8 成筋时加入黄油"
+                ],
                 "ingredients": [
                     {
                         "name": "烫种",
@@ -1722,12 +1721,12 @@
                     },
                     {
                         "name": "水",
-                        "ratio": 0.257,
+                        "ratio": 0.239,
                         "waterContent": 1
                     },
                     {
                         "name": "白砂糖",
-                        "ratio": 0.09
+                        "ratio": 0.06
                     },
                     {
                         "name": "黄油",
@@ -1749,12 +1748,17 @@
                     {
                         "name": "半干酵母",
                         "ratio": 0.01
+                    },
+                    {
+                        "name": "全蛋",
+                        "ratio": 0.05,
+                        "waterContent": 0.75
                     }
                 ],
                 "products": [
                     {
                         "name": "鲜奶吐司",
-                        "weight": 270,
+                        "weight": 280,
                         "procedure": [],
                         "mixIn": [],
                         "fillings": [],
@@ -1777,13 +1781,17 @@
                 "procedure": [],
                 "ingredients": [
                     {
+                        "name": "烫种",
+                        "flourRatio": 0.08
+                    },
+                    {
                         "name": "高筋粉",
-                        "ratio": 1,
+                        "ratio": 0.92,
                         "isFlour": true
                     },
                     {
                         "name": "香茅草液",
-                        "ratio": 0.75
+                        "ratio": 0.655
                     },
                     {
                         "name": "椰浆",
@@ -1791,7 +1799,7 @@
                     },
                     {
                         "name": "白砂糖",
-                        "ratio": 0.08
+                        "ratio": 0.064
                     },
                     {
                         "name": "黄油",
@@ -1804,7 +1812,7 @@
                     },
                     {
                         "name": "盐",
-                        "ratio": 0.018
+                        "ratio": 0.0164
                     },
                     {
                         "name": "半干酵母",
