@@ -697,7 +697,7 @@
                     },
                     {
                         "name": "半干酵母",
-                        "ratio": 0.01
+                        "ratio": 0.008
                     }
                 ],
                 "products": [
@@ -896,7 +896,12 @@
                         "name": "咖啡奶酥小吐司",
                         "weight": 80,
                         "procedure": [],
-                        "mixIn": [],
+                        "mixIn": [
+                            {
+                                "name": "速溶咖啡",
+                                "ratio": 0.04
+                            }
+                        ],
                         "fillings": [
                             {
                                 "name": "咖啡奶酥",
@@ -1303,7 +1308,7 @@
                     },
                     {
                         "name": "水",
-                        "ratio": 0.54,
+                        "ratio": 0.52,
                         "waterContent": 1
                     },
                     {
@@ -1330,7 +1335,7 @@
                 "products": [
                     {
                         "name": "云朵吐司",
-                        "weight": 280,
+                        "weight": 250,
                         "procedure": [],
                         "mixIn": [],
                         "fillings": [],
@@ -1338,7 +1343,7 @@
                     },
                     {
                         "name": "玫瑰云朵吐司",
-                        "weight": 280,
+                        "weight": 245,
                         "procedure": [],
                         "mixIn": [
                             {
@@ -1351,7 +1356,7 @@
                     },
                     {
                         "name": "桂花云朵吐司",
-                        "weight": 280,
+                        "weight": 245,
                         "procedure": [],
                         "mixIn": [
                             {
@@ -1368,7 +1373,7 @@
                     },
                     {
                         "name": "茉莉云朵吐司",
-                        "weight": 280,
+                        "weight": 245,
                         "procedure": [],
                         "mixIn": [
                             {
@@ -1447,7 +1452,7 @@
                 "products": [
                     {
                         "name": "香葱肉松吐司",
-                        "weight": 280,
+                        "weight": 245,
                         "procedure": [],
                         "mixIn": [],
                         "fillings": [
@@ -1468,7 +1473,7 @@
                     },
                     {
                         "name": "蛋黄肉松吐司",
-                        "weight": 280,
+                        "weight": 245,
                         "procedure": [],
                         "mixIn": [],
                         "fillings": [
@@ -1702,7 +1707,8 @@
                 "procedure": [
                     "把液体（鲜奶 + 水）全部加入，预留炼乳最后再加入",
                     "烫种切块加入，搅到粗膜后再加炼乳",
-                    "加到 7～8 成筋时加入黄油"
+                    "加到 7～8 成筋时加入黄油",
+                    "烘烤：一盘6个吐司盒放薄烤盘上 上火165 下火240 烤21分钟"
                 ],
                 "ingredients": [
                     {
@@ -1758,7 +1764,7 @@
                 "products": [
                     {
                         "name": "鲜奶吐司",
-                        "weight": 280,
+                        "weight": 250,
                         "procedure": [],
                         "mixIn": [],
                         "fillings": [],
@@ -1778,7 +1784,9 @@
                 "targetTemp": 26,
                 "lossRatio": 0.01,
                 "divisionLoss": 2,
-                "procedure": [],
+                "procedure": [
+                    "烘烤：一盘6个吐司盒放薄烤盘上 上火170 下火245 烤20分钟"
+                ],
                 "ingredients": [
                     {
                         "name": "烫种",
@@ -1806,11 +1814,6 @@
                         "ratio": 0.06
                     },
                     {
-                        "name": "炼乳",
-                        "ratio": 0.05,
-                        "waterContent": 0.27
-                    },
-                    {
                         "name": "盐",
                         "ratio": 0.0164
                     },
@@ -1822,7 +1825,7 @@
                 "products": [
                     {
                         "name": "香茅草椰香吐司",
-                        "weight": 280,
+                        "weight": 250,
                         "procedure": [],
                         "mixIn": [],
                         "fillings": [],
