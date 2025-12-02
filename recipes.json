@@ -112,53 +112,25 @@
         ]
     },
     {
-        "name": "全麦鲁邦种",
-        "type": "PRE_DOUGH",
-        "category": "OTHER",
-        "versions": [
-            {
-                "notes": "初版",
-                "lossRatio": 0,
-                "ingredients": [
-                    {
-                        "name": "王后T170",
-                        "ratio": 1,
-                        "isFlour": true
-                    },
-                    {
-                        "name": "水",
-                        "ratio": 1.5,
-                        "waterContent": 1
-                    }
-                ],
-                "procedure": []
-            }
-        ]
-    },
-    {
         "name": "柠檬奶油奶酪",
         "type": "EXTRA",
         "category": "OTHER",
         "versions": [
             {
                 "notes": "初版",
-                "lossRatio": 0.01,
+                "lossRatio": 0.03,
                 "ingredients": [
                     {
                         "name": "奶油奶酪",
                         "ratio": 1
                     },
                     {
-                        "name": "白砂糖",
-                        "ratio": 0.07
+                        "name": "糖粉",
+                        "ratio": 0.06
                     },
                     {
                         "name": "柠檬汁",
                         "ratio": 0.025
-                    },
-                    {
-                        "name": "柠檬皮",
-                        "ratio": 0.01
                     }
                 ],
                 "procedure": []
@@ -172,7 +144,7 @@
         "versions": [
             {
                 "notes": "初版",
-                "lossRatio": 0.01,
+                "lossRatio": 0.02,
                 "ingredients": [
                     {
                         "name": "芒果干",
@@ -216,7 +188,7 @@
         "versions": [
             {
                 "notes": "初版",
-                "lossRatio": 0.01,
+                "lossRatio": 0.02,
                 "ingredients": [
                     {
                         "name": "提子干",
@@ -284,7 +256,7 @@
         "versions": [
             {
                 "notes": "玉米淀粉版",
-                "lossRatio": 0.08,
+                "lossRatio": 0.1,
                 "ingredients": [
                     {
                         "name": "牛奶",
@@ -510,7 +482,7 @@
                 ],
                 "procedure": [
                     "培根要用180度烤10分钟后切碎",
-                    "奶油奶酪软化后与培根搅拌"
+                    "奶油奶酪软化后加入培根、盐和黑胡椒搅拌"
                 ]
             }
         ]
@@ -541,7 +513,7 @@
                     "摘叶，不要粗梗，水洗干净，完全晾干",
                     "放入搅拌机加入油打至粗糊状即可（不要过细，会氧化变暗）",
                     "用消毒的玻璃瓶灌入罗勒糊，最重要：表面再淋薄薄一层油密封氧气",
-                    "冷藏 or 冷冻保存，冷藏 2～4 周，冷冻 3～6 个月"
+                    "冷藏 or 冷冻保存，冷藏 2～4 周"
                 ]
             }
         ]
@@ -628,7 +600,7 @@
         "versions": [
             {
                 "notes": "初版",
-                "lossRatio": 0,
+                "lossRatio": 0.1,
                 "ingredients": [
                     {
                         "name": "水",
@@ -637,7 +609,7 @@
                     },
                     {
                         "name": "香茅草",
-                        "ratio": 0.08
+                        "ratio": 0.2
                     }
                 ],
                 "procedure": [
@@ -1196,13 +1168,13 @@
                         "isFlour": true
                     },
                     {
-                        "name": "T170",
-                        "ratio": 0.2,
+                        "name": "王后T170",
+                        "ratio": 0.1,
                         "isFlour": true
                     },
                     {
-                        "name": "T150",
-                        "ratio": 0.1,
+                        "name": "T80",
+                        "ratio": 0.2,
                         "isFlour": true
                     },
                     {
@@ -1258,7 +1230,7 @@
                         ]
                     },
                     {
-                        "name": "全麦培根奶酪",
+                        "name": "全麦培根奶酪球",
                         "weight": 80,
                         "procedure": [
                             "一盘12个 上火220 下火180 12-15分钟 喷蒸汽"
@@ -1614,7 +1586,7 @@
                 ],
                 "products": [
                     {
-                        "name": "提子核桃黑麦欧包",
+                        "name": "黑麦提子核桃欧包",
                         "weight": 250,
                         "procedure": [
                             "核桃清洗后，180度烤15分钟",
@@ -1632,59 +1604,19 @@
                         ],
                         "fillings": [],
                         "toppings": []
-                    }
-                ]
-            }
-        ]
-    },
-    {
-        "name": "全麦欧包",
-        "type": "MAIN",
-        "category": "BREAD",
-        "versions": [
-            {
-                "notes": "初版",
-                "targetTemp": 22,
-                "lossRatio": 0.01,
-                "divisionLoss": 2,
-                "procedure": [],
-                "ingredients": [
-                    {
-                        "name": "全麦鲁邦种",
-                        "flourRatio": 0.25
                     },
                     {
-                        "name": "高筋粉",
-                        "ratio": 0.7,
-                        "isFlour": true
-                    },
-                    {
-                        "name": "T150",
-                        "ratio": 0.05,
-                        "isFlour": true
-                    },
-                    {
-                        "name": "盐",
-                        "ratio": 0.018
-                    },
-                    {
-                        "name": "麦芽精",
-                        "ratio": 0.01
-                    },
-                    {
-                        "name": "半干酵母",
-                        "ratio": 0.005
-                    }
-                ],
-                "products": [
-                    {
-                        "name": "全麦欧包",
+                        "name": "黑麦种子欧包",
                         "weight": 250,
                         "procedure": [],
                         "mixIn": [
                             {
-                                "name": "黑芝麻",
+                                "name": "奇亚籽",
                                 "ratio": 0.04
+                            },
+                            {
+                                "name": "亚麻籽",
+                                "ratio": 0.06
                             }
                         ],
                         "fillings": [],
@@ -1708,7 +1640,7 @@
                     "把液体（鲜奶 + 水）全部加入，预留炼乳最后再加入",
                     "烫种切块加入，搅到粗膜后再加炼乳",
                     "加到 7～8 成筋时加入黄油",
-                    "烘烤：一盘6个吐司盒放薄烤盘上 上火165 下火240 烤21分钟"
+                    "烘烤：一盘6个吐司盒放薄烤盘上 上火165 下火235 烤22分钟"
                 ],
                 "ingredients": [
                     {
@@ -1825,6 +1757,67 @@
                 "products": [
                     {
                         "name": "香茅草椰香吐司",
+                        "weight": 250,
+                        "procedure": [],
+                        "mixIn": [],
+                        "fillings": [],
+                        "toppings": []
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "黑糖肉桂吐司",
+        "type": "MAIN",
+        "category": "BREAD",
+        "versions": [
+            {
+                "notes": "初版",
+                "targetTemp": null,
+                "lossRatio": 0.01,
+                "divisionLoss": 2,
+                "procedure": [],
+                "ingredients": [
+                    {
+                        "name": "高筋粉",
+                        "ratio": 0.8,
+                        "isFlour": true
+                    },
+                    {
+                        "name": "王后T170",
+                        "ratio": 0.2,
+                        "isFlour": true
+                    },
+                    {
+                        "name": "水",
+                        "ratio": 0.75,
+                        "waterContent": 1
+                    },
+                    {
+                        "name": "黑糖",
+                        "ratio": 0.09
+                    },
+                    {
+                        "name": "盐",
+                        "ratio": 0.018
+                    },
+                    {
+                        "name": "肉桂粉",
+                        "ratio": 0.005
+                    },
+                    {
+                        "name": "黄油",
+                        "ratio": 0.04
+                    },
+                    {
+                        "name": "半干酵母",
+                        "ratio": 0.01
+                    }
+                ],
+                "products": [
+                    {
+                        "name": "黑糖肉桂吐司",
                         "weight": 250,
                         "procedure": [],
                         "mixIn": [],
