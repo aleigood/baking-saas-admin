@@ -256,7 +256,7 @@
         "versions": [
             {
                 "notes": "玉米淀粉版",
-                "lossRatio": 0.1,
+                "lossRatio": 0.15,
                 "ingredients": [
                     {
                         "name": "牛奶",
@@ -282,7 +282,7 @@
                     },
                     {
                         "name": "柠檬汁",
-                        "ratio": 0.012
+                        "ratio": 0.015
                     }
                 ],
                 "procedure": [
@@ -600,7 +600,7 @@
         "versions": [
             {
                 "notes": "初版",
-                "lossRatio": 0.1,
+                "lossRatio": 0.4,
                 "ingredients": [
                     {
                         "name": "水",
@@ -609,12 +609,46 @@
                     },
                     {
                         "name": "香茅草",
-                        "ratio": 0.2
+                        "ratio": 0.4
                     }
                 ],
                 "procedure": [
                     "香茅草打碎放入水中浸泡一夜"
                 ]
+            }
+        ]
+    },
+    {
+        "name": "椰香芋头",
+        "type": "EXTRA",
+        "category": "OTHER",
+        "versions": [
+            {
+                "notes": "初版",
+                "lossRatio": 0,
+                "ingredients": [
+                    {
+                        "name": "芋头",
+                        "ratio": 1
+                    },
+                    {
+                        "name": "黄油",
+                        "ratio": 0.025
+                    },
+                    {
+                        "name": "糖",
+                        "ratio": 0.06
+                    },
+                    {
+                        "name": "椰浆",
+                        "ratio": 0.08
+                    },
+                    {
+                        "name": "奶粉",
+                        "ratio": 0.025
+                    }
+                ],
+                "procedure": []
             }
         ]
     },
@@ -1029,11 +1063,11 @@
                         "fillings": [
                             {
                                 "name": "松露肉丸",
-                                "weightInGrams": 80
+                                "weightInGrams": 90
                             },
                             {
                                 "name": "马苏里拉奶酪",
-                                "weightInGrams": 60
+                                "weightInGrams": 70
                             },
                             {
                                 "name": "烤口蘑",
@@ -1060,7 +1094,7 @@
                             },
                             {
                                 "name": "马苏里拉奶酪",
-                                "weightInGrams": 55
+                                "weightInGrams": 60
                             },
                             {
                                 "name": "萨拉米肠",
@@ -1091,7 +1125,7 @@
                         "fillings": [
                             {
                                 "name": "马苏里拉奶酪",
-                                "weightInGrams": 60
+                                "weightInGrams": 70
                             },
                             {
                                 "name": "烤口蘑",
@@ -1130,7 +1164,7 @@
                             },
                             {
                                 "name": "马苏里拉奶酪",
-                                "weightInGrams": 60
+                                "weightInGrams": 70
                             },
                             {
                                 "name": "橄榄油",
@@ -1213,7 +1247,7 @@
                         "name": "全麦谷物餐包",
                         "weight": 80,
                         "procedure": [
-                            "烘烤：一盘15个 上火220 下火180 喷3-4秒蒸汽 烤12分钟"
+                            "烘烤：一盘15个 上火230 下火180 喷3-4秒蒸汽 烤12分钟"
                         ],
                         "mixIn": [
                             {
@@ -1233,7 +1267,7 @@
                         "name": "全麦培根奶酪球",
                         "weight": 80,
                         "procedure": [
-                            "一盘12个 上火220 下火180 12-15分钟 喷蒸汽"
+                            "一盘12个 上火230 下火180 12-15分钟 喷蒸汽"
                         ],
                         "mixIn": [],
                         "fillings": [
@@ -1607,8 +1641,11 @@
                     },
                     {
                         "name": "黑麦种子欧包",
-                        "weight": 250,
-                        "procedure": [],
+                        "weight": 260,
+                        "procedure": [
+                            "@亚麻籽（用7%的会提前30分钟浸泡）",
+                            "@奇亚籽（用8%的会提前30分钟浸泡）"
+                        ],
                         "mixIn": [
                             {
                                 "name": "奇亚籽",
@@ -1616,7 +1653,11 @@
                             },
                             {
                                 "name": "亚麻籽",
-                                "ratio": 0.06
+                                "ratio": 0.07
+                            },
+                            {
+                                "name": "黑芝麻",
+                                "ratio": 0.01
                             }
                         ],
                         "fillings": [],
@@ -1731,7 +1772,7 @@
                     },
                     {
                         "name": "香茅草液",
-                        "ratio": 0.655
+                        "ratio": 0.25
                     },
                     {
                         "name": "椰浆",
@@ -1752,6 +1793,11 @@
                     {
                         "name": "半干酵母",
                         "ratio": 0.01
+                    },
+                    {
+                        "name": "水",
+                        "ratio": 0.355,
+                        "waterContent": 1
                     }
                 ],
                 "products": [
@@ -1780,27 +1826,31 @@
                 "procedure": [],
                 "ingredients": [
                     {
+                        "name": "烫种",
+                        "flourRatio": 0.08
+                    },
+                    {
                         "name": "高筋粉",
-                        "ratio": 0.8,
+                        "ratio": 0.82,
                         "isFlour": true
                     },
                     {
                         "name": "王后T170",
-                        "ratio": 0.2,
+                        "ratio": 0.1,
                         "isFlour": true
                     },
                     {
                         "name": "水",
-                        "ratio": 0.75,
+                        "ratio": 0.59,
                         "waterContent": 1
                     },
                     {
                         "name": "黑糖",
-                        "ratio": 0.09
+                        "ratio": 0.15
                     },
                     {
                         "name": "盐",
-                        "ratio": 0.018
+                        "ratio": 0.016
                     },
                     {
                         "name": "肉桂粉",
@@ -1808,7 +1858,7 @@
                     },
                     {
                         "name": "黄油",
-                        "ratio": 0.04
+                        "ratio": 0.1
                     },
                     {
                         "name": "半干酵母",
@@ -1821,7 +1871,16 @@
                         "weight": 250,
                         "procedure": [],
                         "mixIn": [],
-                        "fillings": [],
+                        "fillings": [
+                            {
+                                "name": "黑糖",
+                                "weightInGrams": 20
+                            },
+                            {
+                                "name": "核桃干",
+                                "weightInGrams": 10
+                            }
+                        ],
                         "toppings": []
                     }
                 ]
