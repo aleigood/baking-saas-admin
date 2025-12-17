@@ -653,6 +653,28 @@
         ]
     },
     {
+        "name": "罗勒酱",
+        "type": "EXTRA",
+        "category": "OTHER",
+        "versions": [
+            {
+                "notes": "初版",
+                "lossRatio": 0.05,
+                "ingredients": [
+                    {
+                        "name": "罗勒叶",
+                        "ratio": 1
+                    },
+                    {
+                        "name": "玉米油",
+                        "ratio": 1
+                    }
+                ],
+                "procedure": []
+            }
+        ]
+    },
+    {
         "name": "贝果",
         "type": "MAIN",
         "category": "BREAD",
@@ -891,7 +913,7 @@
                         "procedure": [],
                         "mixIn": [
                             {
-                                "name": "自制青酱",
+                                "name": "罗勒酱",
                                 "ratio": 0.04
                             }
                         ],
@@ -1643,8 +1665,8 @@
                         "name": "黑麦种子欧包",
                         "weight": 260,
                         "procedure": [
-                            "@亚麻籽（用7%的会提前30分钟浸泡）",
-                            "@奇亚籽（用8%的会提前30分钟浸泡）"
+                            "@亚麻籽（用[7%]的水提前30分钟浸泡）",
+                            "@奇亚籽（用[8%]的水提前30分钟浸泡）"
                         ],
                         "mixIn": [
                             {
