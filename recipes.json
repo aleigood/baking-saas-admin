@@ -188,7 +188,7 @@
                     },
                     {
                         "name": "朗姆酒",
-                        "ratio": 0.2
+                        "ratio": 0.15
                     }
                 ],
                 "procedure": []
@@ -641,6 +641,60 @@
         ]
     },
     {
+        "name": "烤核桃",
+        "type": "EXTRA",
+        "category": "OTHER",
+        "versions": [
+            {
+                "notes": "初版",
+                "lossRatio": 0,
+                "ingredients": [
+                    {
+                        "name": "核桃",
+                        "ratio": 1
+                    }
+                ],
+                "procedure": [
+                    "180度烤15分钟"
+                ]
+            }
+        ]
+    },
+    {
+        "name": "肉桂馅",
+        "type": "EXTRA",
+        "category": "OTHER",
+        "versions": [
+            {
+                "notes": "初版",
+                "lossRatio": 0,
+                "ingredients": [
+                    {
+                        "name": "黄油",
+                        "ratio": 1
+                    },
+                    {
+                        "name": "黑糖",
+                        "ratio": 1.8
+                    },
+                    {
+                        "name": "肉桂粉",
+                        "ratio": 0.15
+                    },
+                    {
+                        "name": "玉米淀粉",
+                        "ratio": 0.08
+                    },
+                    {
+                        "name": "盐",
+                        "ratio": 0.005
+                    }
+                ],
+                "procedure": []
+            }
+        ]
+    },
+    {
         "name": "贝果",
         "type": "MAIN",
         "category": "BREAD",
@@ -707,7 +761,7 @@
                         "name": "伯爵柠檬乳酪贝果",
                         "weight": 90,
                         "procedure": [
-                            "茶粉提前用冷水泡开"
+                            "茶粉提前用等量的冷水搅拌"
                         ],
                         "mixIn": [
                             {
@@ -883,7 +937,12 @@
                                 "ratio": 0.04
                             }
                         ],
-                        "fillings": [],
+                        "fillings": [
+                            {
+                                "name": "有盐黄油",
+                                "weightInGrams": 6
+                            }
+                        ],
                         "toppings": []
                     },
                     {
@@ -1121,11 +1180,11 @@
                             },
                             {
                                 "name": "德式纽伦堡香肠",
-                                "weightInGrams": 25
+                                "weightInGrams": 30
                             },
                             {
                                 "name": "图林根香肠",
-                                "weightInGrams": 25
+                                "weightInGrams": 30
                             },
                             {
                                 "name": "橄榄油",
@@ -1164,6 +1223,31 @@
                             }
                         ],
                         "toppings": []
+                    },
+                    {
+                        "name": "榴莲披萨",
+                        "weight": 220,
+                        "procedure": [],
+                        "mixIn": [],
+                        "fillings": [
+                            {
+                                "name": "马苏里拉奶酪",
+                                "weightInGrams": 70
+                            },
+                            {
+                                "name": "橄榄油",
+                                "weightInGrams": 3
+                            },
+                            {
+                                "name": "榴莲酱",
+                                "weightInGrams": 30
+                            },
+                            {
+                                "name": "榴莲果肉",
+                                "weightInGrams": 120
+                            }
+                        ],
+                        "toppings": []
                     }
                 ]
             }
@@ -1185,7 +1269,7 @@
                 ],
                 "ingredients": [
                     {
-                        "name": "高筋粉",
+                        "name": "特高筋粉",
                         "ratio": 0.7,
                         "isFlour": true
                     },
@@ -1227,7 +1311,7 @@
                     },
                     {
                         "name": "半干酵母",
-                        "ratio": 0.005
+                        "ratio": 0.01
                     }
                 ],
                 "products": [
@@ -1235,7 +1319,7 @@
                         "name": "全麦谷物餐包",
                         "weight": 80,
                         "procedure": [
-                            "烘烤：一盘15个 上火230 下火180 喷3-4秒蒸汽 烤12分钟"
+                            "烘烤：一盘15个 上火230 下火190 喷3-4秒蒸汽 烤13分钟"
                         ],
                         "mixIn": [
                             {
@@ -1255,7 +1339,7 @@
                         "name": "全麦培根奶酪球",
                         "weight": 80,
                         "procedure": [
-                            "一盘12个 上火230 下火180 12-15分钟 喷蒸汽"
+                            "一盘12个 上火230 下火190 喷3-4秒蒸汽 烤13分钟"
                         ],
                         "mixIn": [],
                         "fillings": [
@@ -1620,7 +1704,7 @@
                                 "ratio": 0.15
                             },
                             {
-                                "name": "核桃干",
+                                "name": "烤核桃",
                                 "ratio": 0.15
                             }
                         ],
@@ -1632,7 +1716,7 @@
                         "weight": 260,
                         "procedure": [
                             "@亚麻籽（用[7%]的水提前30分钟浸泡）",
-                            "@奇亚籽（用[8%]的水提前30分钟浸泡）"
+                            "@奇亚籽（用[6%]的水提前30分钟浸泡）"
                         ],
                         "mixIn": [
                             {
@@ -1802,7 +1886,7 @@
         ]
     },
     {
-        "name": "黑糖肉桂吐司",
+        "name": "黑糖卷",
         "type": "MAIN",
         "category": "BREAD",
         "versions": [
@@ -1811,20 +1895,24 @@
                 "targetTemp": null,
                 "lossRatio": 0.01,
                 "divisionLoss": 2,
-                "procedure": [],
+                "procedure": [
+                    "黑糖用等重的开水化开",
+                    "最终发酵湿度75%左右",
+                    "上火200 下火180 烤12-15分钟"
+                ],
                 "ingredients": [
                     {
                         "name": "烫种",
                         "flourRatio": 0.08
                     },
                     {
-                        "name": "高筋粉",
-                        "ratio": 0.82,
+                        "name": "特高筋粉",
+                        "ratio": 0.77,
                         "isFlour": true
                     },
                     {
                         "name": "王后T170",
-                        "ratio": 0.1,
+                        "ratio": 0.15,
                         "isFlour": true
                     },
                     {
@@ -1841,22 +1929,22 @@
                         "ratio": 0.016
                     },
                     {
-                        "name": "肉桂粉",
-                        "ratio": 0.005
-                    },
-                    {
                         "name": "黄油",
-                        "ratio": 0.1
+                        "ratio": 0.03
                     },
                     {
                         "name": "半干酵母",
-                        "ratio": 0.01
+                        "ratio": 0.013
+                    },
+                    {
+                        "name": "玉米油",
+                        "ratio": 0.07
                     }
                 ],
                 "products": [
                     {
-                        "name": "黑糖肉桂吐司",
-                        "weight": 250,
+                        "name": "黑糖卷",
+                        "weight": 135,
                         "procedure": [],
                         "mixIn": [],
                         "fillings": [
@@ -1865,8 +1953,105 @@
                                 "weightInGrams": 20
                             },
                             {
-                                "name": "核桃干",
+                                "name": "烤核桃",
                                 "weightInGrams": 10
+                            },
+                            {
+                                "name": "玉米淀粉",
+                                "weightInGrams": 2
+                            }
+                        ],
+                        "toppings": []
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "肉桂卷",
+        "type": "MAIN",
+        "category": "BREAD",
+        "versions": [
+            {
+                "notes": "初版",
+                "targetTemp": null,
+                "lossRatio": 0.01,
+                "divisionLoss": 2,
+                "procedure": [
+                    "上火200 下火180 烤12-15分钟"
+                ],
+                "ingredients": [
+                    {
+                        "name": "烫种",
+                        "flourRatio": 0.08
+                    },
+                    {
+                        "name": "特高筋粉",
+                        "ratio": 0.62,
+                        "isFlour": true
+                    },
+                    {
+                        "name": "高筋粉",
+                        "ratio": 0.3,
+                        "isFlour": true
+                    },
+                    {
+                        "name": "白砂糖",
+                        "ratio": 0.15
+                    },
+                    {
+                        "name": "盐",
+                        "ratio": 0.015
+                    },
+                    {
+                        "name": "奶粉",
+                        "ratio": 0.06
+                    },
+                    {
+                        "name": "半干酵母",
+                        "ratio": 0.014
+                    },
+                    {
+                        "name": "全蛋",
+                        "ratio": 0.1,
+                        "waterContent": 0.75
+                    },
+                    {
+                        "name": "水",
+                        "ratio": 0.47,
+                        "waterContent": 1
+                    },
+                    {
+                        "name": "玉米油",
+                        "ratio": 0.15
+                    },
+                    {
+                        "name": "黄油",
+                        "ratio": 0.05
+                    },
+                    {
+                        "name": "麦芽精",
+                        "ratio": 0.005
+                    },
+                    {
+                        "name": "可可粉",
+                        "ratio": 0.01
+                    }
+                ],
+                "products": [
+                    {
+                        "name": "肉桂卷",
+                        "weight": 135,
+                        "procedure": [],
+                        "mixIn": [],
+                        "fillings": [
+                            {
+                                "name": "烤核桃",
+                                "weightInGrams": 5
+                            },
+                            {
+                                "name": "肉桂馅",
+                                "weightInGrams": 15
                             }
                         ],
                         "toppings": []
