@@ -695,6 +695,29 @@
         ]
     },
     {
+        "name": "榴莲酱",
+        "type": "EXTRA",
+        "category": "OTHER",
+        "versions": [
+            {
+                "notes": "初版",
+                "lossRatio": 0,
+                "ingredients": [
+                    {
+                        "name": "榴莲果肉",
+                        "ratio": 1
+                    },
+                    {
+                        "name": "牛奶",
+                        "ratio": 1,
+                        "waterContent": 0.87
+                    }
+                ],
+                "procedure": []
+            }
+        ]
+    },
+    {
         "name": "贝果",
         "type": "MAIN",
         "category": "BREAD",
@@ -915,19 +938,6 @@
                         "toppings": []
                     },
                     {
-                        "name": "咖啡海盐卷",
-                        "weight": 65,
-                        "procedure": [],
-                        "mixIn": [
-                            {
-                                "name": "速溶咖啡",
-                                "ratio": 0.04
-                            }
-                        ],
-                        "fillings": [],
-                        "toppings": []
-                    },
-                    {
                         "name": "罗勒海盐卷",
                         "weight": 65,
                         "procedure": [],
@@ -941,24 +951,6 @@
                             {
                                 "name": "有盐黄油",
                                 "weightInGrams": 6
-                            }
-                        ],
-                        "toppings": []
-                    },
-                    {
-                        "name": "咖啡奶酥小吐司",
-                        "weight": 80,
-                        "procedure": [],
-                        "mixIn": [
-                            {
-                                "name": "速溶咖啡",
-                                "ratio": 0.04
-                            }
-                        ],
-                        "fillings": [
-                            {
-                                "name": "咖啡奶酥",
-                                "weightInGrams": 10
                             }
                         ],
                         "toppings": []
@@ -1886,7 +1878,7 @@
         ]
     },
     {
-        "name": "黑糖卷",
+        "name": "黑糖小吐司",
         "type": "MAIN",
         "category": "BREAD",
         "versions": [
