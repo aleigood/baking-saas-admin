@@ -675,19 +675,24 @@
                     },
                     {
                         "name": "黑糖",
-                        "ratio": 1.8
+                        "ratio": 1.2
                     },
                     {
                         "name": "肉桂粉",
-                        "ratio": 0.15
+                        "ratio": 0.2
                     },
                     {
-                        "name": "玉米淀粉",
-                        "ratio": 0.08
+                        "name": "蛋黄",
+                        "ratio": 0.3,
+                        "waterContent": 0.5
                     },
                     {
                         "name": "盐",
                         "ratio": 0.005
+                    },
+                    {
+                        "name": "杏仁粉",
+                        "ratio": 0.8
                     }
                 ],
                 "procedure": []
@@ -1500,7 +1505,7 @@
                     },
                     {
                         "name": "黄油",
-                        "ratio": 0.1
+                        "ratio": 0.04
                     },
                     {
                         "name": "白砂糖",
@@ -1517,6 +1522,10 @@
                     {
                         "name": "半干酵母",
                         "ratio": 0.01
+                    },
+                    {
+                        "name": "玉米油",
+                        "ratio": 0.06
                     }
                 ],
                 "products": [
@@ -1969,9 +1978,7 @@
                 "targetTemp": null,
                 "lossRatio": 0.01,
                 "divisionLoss": 2,
-                "procedure": [
-                    "上火200 下火180 烤12-15分钟"
-                ],
+                "procedure": [],
                 "ingredients": [
                     {
                         "name": "烫种",
@@ -1989,7 +1996,7 @@
                     },
                     {
                         "name": "白砂糖",
-                        "ratio": 0.15
+                        "ratio": 0.1
                     },
                     {
                         "name": "盐",
@@ -2022,25 +2029,19 @@
                         "ratio": 0.05
                     },
                     {
-                        "name": "麦芽精",
-                        "ratio": 0.005
-                    },
-                    {
-                        "name": "可可粉",
-                        "ratio": 0.01
+                        "name": "黑糖",
+                        "ratio": 0.05
                     }
                 ],
                 "products": [
                     {
                         "name": "肉桂卷",
-                        "weight": 135,
-                        "procedure": [],
+                        "weight": 90,
+                        "procedure": [
+                            "上火200 下火185 烤13分钟"
+                        ],
                         "mixIn": [],
                         "fillings": [
-                            {
-                                "name": "烤核桃",
-                                "weightInGrams": 5
-                            },
                             {
                                 "name": "肉桂馅",
                                 "weightInGrams": 15
